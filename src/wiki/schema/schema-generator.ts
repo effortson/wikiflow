@@ -13,7 +13,7 @@ import {
 import { parseLlmJson } from "@shared/parse-llm-json";
 import type { LLMService } from "../../core/llm/llm-service";
 import type { VaultAdapter } from "../../core/vault/vault-adapter";
-import { parseEnterpriseSource } from "../source/source-markdown";
+import { parseWikiFlowSource } from "../source/source-markdown";
 import { SchemaManager } from "./schema-manager";
 
 const MAX_SOURCE_FILES = 8;
@@ -162,7 +162,7 @@ async function collectSourceSamples(
   for (const path of allPaths.slice(0, MAX_SOURCE_FILES)) {
     if (!(await vault.exists(path))) continue;
     const raw = await vault.readText(path);
-    const { meta, body } = parseEnterpriseSource(raw);
+    const { meta, body } = parseWikiFlowSource(raw);
     const plain = meta ? body : parseMarkdown(raw).body;
     const excerpt = plain.trim().slice(0, MAX_CHARS_PER_FILE);
     if (!excerpt) continue;

@@ -50,7 +50,7 @@ export function isInScope(path: string, options: ScopeOptions): boolean {
     normalizePath(options.paths.wikiRoot),
     normalizePath(options.paths.schemaRoot),
     normalizePath(options.paths.workflowsFolder),
-    ".enterpriseflow",
+    ".wikiflow",
   ];
 
   const inPrefix = prefixes.some(
@@ -60,8 +60,8 @@ export function isInScope(path: string, options: ScopeOptions): boolean {
 
   if (
     !options.includeExtractCache &&
-    (normalized === ".enterpriseflow/extracts" ||
-      normalized.startsWith(".enterpriseflow/extracts/"))
+    (normalized === ".wikiflow/extracts" ||
+      normalized.startsWith(".wikiflow/extracts/"))
   ) {
     return false;
   }

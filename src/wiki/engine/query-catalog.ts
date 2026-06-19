@@ -6,7 +6,7 @@ import type {
 import type { WikiInstance } from "@shared/types/wiki-instance";
 import type { VaultAdapter } from "../../core/vault/vault-adapter";
 
-const INDEX_ROOT = ".enterpriseflow/index";
+const INDEX_ROOT = ".wikiflow/index";
 
 export class QueryCatalogStore {
   constructor(

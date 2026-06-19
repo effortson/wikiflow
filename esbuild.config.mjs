@@ -13,7 +13,7 @@ async function copyPdfWorker() {
 }
 
 const banner = `/*
- * EnterpriseFlow
+ * WikiFlow
  * MIT License
  */`;
 

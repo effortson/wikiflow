@@ -21,4 +21,6 @@ export interface QueryOptions {
   maxPages?: number;
   maxContextTokens?: number;
   keywordCandidateLimit?: number;
+  systemPrompt?: string;
+  userPrompt?: string;
 }

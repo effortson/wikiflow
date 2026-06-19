@@ -4,7 +4,6 @@ import type { QueryCatalogEntry, QueryOptions } from "@shared/types/query-catalo
 import type { WikiInstance } from "@shared/types/wiki-instance";
 import {
   normalizeWikiLanguage,
-  wikiLanguageQueryInstruction,
   wikiLanguageQueryNoPagesError,
   type WikiLanguage,
 } from "@shared/wiki-language";
@@ -14,6 +13,8 @@ import {
   QueryCatalogStore,
   keywordRecall,
 } from "./query-catalog";
+import { resolveQueryPrompts } from "../query-prompts";
+import { stripLlmNoise } from "@shared/strip-llm-noise";
 
 const DEFAULTS = {
   maxPages: 5,
@@ -81,25 +82,24 @@ export class QueryEngine {
       .map((p) => `### [[${p.path}|${p.title}]]\n\n${p.body}`)
       .join("\n\n---\n\n");
 
-    const system = `You answer questions using ONLY the provided wiki pages from wikiId "${wiki.wikiId}".
-Cite sources using Obsidian wikilinks like [[wiki/${wiki.wikiId}/entities/example]].
-If the context is insufficient, say so clearly.
-${wikiLanguageQueryInstruction(language)}`;
-
-    const user = `Question: ${question}
-
-Context pages:
-${context}
-
-Answer in markdown. Include [[wikilinks]] to cited pages.`;
+    const { system, user } = resolveQueryPrompts({
+      wikiId: wiki.wikiId,
+      question,
+      context,
+      language,
+      systemPrompt: options.systemPrompt,
+      userPrompt: options.userPrompt,
+    });
 
     try {
-      const answer = await this.core.llm.chat({
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-      });
+      const answer = stripLlmNoise(
+        await this.core.llm.chat({
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: user },
+          ],
+        }),
+      );
 
       yield { kind: "text", delta: answer };
       yield {

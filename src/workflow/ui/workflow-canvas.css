@@ -28,8 +28,8 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.enterpriseflow-workflow-view,
-.enterpriseflow-workflow-mount,
+.wikiflow-workflow-view,
+.wikiflow-workflow-mount,
 .ef-workflow-canvas,
 .ef-workflow-canvas .react-flow {
   height: 100%;
@@ -112,6 +112,18 @@
 }
 
 .ef-workflow-header__name-row svg {
+  cursor: pointer;
+  flex: none;
+}
+
+.ef-workflow-header__name-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
   cursor: pointer;
   flex: none;
 }

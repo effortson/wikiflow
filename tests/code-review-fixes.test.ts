@@ -18,7 +18,7 @@ describe("backup snapshot integrity", () => {
       vaultName: "test",
       createdAt: new Date().toISOString(),
       pluginVersion: "0.1.0",
-      scope: "enterpriseflow",
+      scope: "wikiflow",
       includeExtractCache: false,
       fileCount: 1,
       totalBytes: 5,

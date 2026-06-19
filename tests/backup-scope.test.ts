@@ -10,10 +10,10 @@ describe("backup scope", () => {
     workflowsFolder: "workflows",
   };
 
-  it("includes enterprise paths in enterpriseflow scope", () => {
+  it("includes plugin paths in wikiflow scope", () => {
     expect(
       isInScope("wiki/legal/foo.md", {
-        scope: "enterpriseflow",
+        scope: "wikiflow",
         includeExtractCache: false,
         excludePatterns: [],
         paths,
@@ -23,8 +23,8 @@ describe("backup scope", () => {
 
   it("excludes extract cache unless enabled", () => {
     expect(
-      isInScope(".enterpriseflow/extracts/abc/extract.json", {
-        scope: "enterpriseflow",
+      isInScope(".wikiflow/extracts/abc/extract.json", {
+        scope: "wikiflow",
         includeExtractCache: false,
         excludePatterns: [],
         paths,
@@ -32,8 +32,8 @@ describe("backup scope", () => {
     ).toBe(false);
 
     expect(
-      isInScope(".enterpriseflow/extracts/abc/extract.json", {
-        scope: "enterpriseflow",
+      isInScope(".wikiflow/extracts/abc/extract.json", {
+        scope: "wikiflow",
         includeExtractCache: true,
         excludePatterns: [],
         paths,
@@ -43,7 +43,7 @@ describe("backup scope", () => {
 
   it("excludes workspace.json by default patterns via list filter", () => {
     const excluded = isInScope("notes/daily.md", {
-      scope: "enterpriseflow",
+      scope: "wikiflow",
       includeExtractCache: false,
       excludePatterns: [],
       paths,

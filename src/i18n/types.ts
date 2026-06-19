@@ -114,7 +114,7 @@ export interface SettingsMessages {
     s3: string;
     github: string;
     scope: string;
-    scopeEnterpriseFlow: string;
+    scopeWikiFlow: string;
     scopeFull: string;
     includeExtractCache: string;
     retentionCount: string;
@@ -146,10 +146,22 @@ export interface SettingsMessages {
 
 export interface QueryViewMessages {
   title: string;
+  mode: string;
+  modeWiki: string;
+  modeWorkflow: string;
   wiki: string;
   wikiDesc: string;
+  wikiDescWorkflow: string;
+  workflow: string;
+  workflowDesc: string;
+  noWorkflow: string;
+  workflowInvalid: string;
+  workflowRunning: string;
+  workflowNoAnswer: string;
+  workflowRunTitle: string;
   question: string;
   questionPlaceholder: string;
+  questionPlaceholderWorkflow: string;
   ask: string;
   clear: string;
   hint: string;
@@ -158,6 +170,11 @@ export interface QueryViewMessages {
   noWiki: string;
   citations: string;
   emptyAnswer: string;
+  elapsedSeconds: string;
+  systemPrompt: string;
+  userPrompt: string;
+  promptVarsHint: string;
+  resetPrompt: string;
 }
 
 export interface UiMessages {

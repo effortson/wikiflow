@@ -1,6 +1,6 @@
 import { App, Modal, Setting } from "obsidian";
 import type { BackupSnapshotInfo } from "@shared/types/backup";
-import type { EnterpriseFlowPlugin } from "../main";
+import type { WikiFlowPlugin } from "../main";
 
 export class RestoreBackupModal extends Modal {
   private snapshots: BackupSnapshotInfo[] = [];
@@ -9,7 +9,7 @@ export class RestoreBackupModal extends Modal {
 
   constructor(
     app: App,
-    private plugin: EnterpriseFlowPlugin,
+    private plugin: WikiFlowPlugin,
   ) {
     super(app);
   }
@@ -21,7 +21,7 @@ export class RestoreBackupModal extends Modal {
 
     if (this.plugin.settings.backup.provider === "none") {
       contentEl.createEl("p", {
-        text: "Configure a backup provider in EnterpriseFlow settings first.",
+        text: "Configure a backup provider in WikiFlow settings first.",
       });
       return;
     }
@@ -57,7 +57,7 @@ export class RestoreBackupModal extends Modal {
         });
       });
 
-    const previewEl = contentEl.createDiv({ cls: "enterpriseflow-restore-preview" });
+    const previewEl = contentEl.createDiv({ cls: "wikiflow-restore-preview" });
     previewEl.style.whiteSpace = "pre-wrap";
     previewEl.setText(this.previewText);
 
@@ -125,7 +125,7 @@ export class RestoreBackupModal extends Modal {
     dryRun: boolean,
   ): Promise<void> {
     const errorEl = this.contentEl.querySelector(
-      ".enterpriseflow-restore-error",
+      ".wikiflow-restore-error",
     );
     errorEl?.remove();
 
@@ -141,12 +141,12 @@ export class RestoreBackupModal extends Modal {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      this.contentEl.createDiv({ cls: "enterpriseflow-restore-error" }).setText(msg);
+      this.contentEl.createDiv({ cls: "wikiflow-restore-error" }).setText(msg);
     }
   }
 }
 
-export function openRestoreBackupModal(plugin: EnterpriseFlowPlugin): void {
+export function openRestoreBackupModal(plugin: WikiFlowPlugin): void {
   const modal = new RestoreBackupModal(plugin.app, plugin);
   modal.open();
 }

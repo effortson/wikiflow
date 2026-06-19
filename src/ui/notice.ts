@@ -7,13 +7,13 @@ export interface ShowNoticeOptions {
   data?: Record<string, unknown>;
 }
 
-/** Mirror notice text to DevTools console (filter: EnterpriseFlow). */
+/** Mirror notice text to DevTools console (filter: WikiFlow). */
 export function logNotice(
   message: string,
   level: LogLevel = "info",
   data?: Record<string, unknown>,
 ): void {
-  const prefix = `[EnterpriseFlow:${level}]`;
+  const prefix = `[WikiFlow:${level}]`;
   if (data) {
     console.log(prefix, message, data);
   } else {

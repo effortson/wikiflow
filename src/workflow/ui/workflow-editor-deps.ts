@@ -3,9 +3,16 @@ import type { WorkflowStepEvent } from "@shared/types/workflow-step";
 import type { ValidationResult } from "@shared/types/validation";
 import type { UserInputModalOptions } from "./user-input-modal";
 
+export interface WorkflowMeta {
+  name: string;
+  id: string;
+  description?: string;
+}
+
 export interface WorkflowEditorDeps {
   workflowsFolder: string;
   activeWikiId?: string;
+  onWorkflowMetaChange?: (meta: WorkflowMeta) => void;
   loadWorkflow(path: string): Promise<WorkflowDefinition>;
   saveWorkflow(path: string, def: WorkflowDefinition): Promise<void>;
   validate(

@@ -3,7 +3,7 @@ import type { ContentHash } from "@shared/types/normalized-document";
 import type { PluginSettings } from "../config/settings";
 import { VaultAdapter } from "../vault/vault-adapter";
 
-const EXTRACTS_ROOT = ".enterpriseflow/extracts";
+const EXTRACTS_ROOT = ".wikiflow/extracts";
 const REFERENCED_BY_LIMIT = 32;
 
 export class ExtractCache {

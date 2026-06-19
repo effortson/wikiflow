@@ -2,7 +2,7 @@ import { Setting } from "obsidian";
 import { createTranslator, formatMessage } from "../i18n";
 import { showNotice } from "./notice";
 import type { SettingsMessages } from "../i18n/types";
-import type { EnterpriseFlowPlugin } from "../main";
+import type { WikiFlowPlugin } from "../main";
 import type {
   BackupSettings,
   GitHubBackupSettings,
@@ -10,7 +10,7 @@ import type {
 } from "@shared/types/backup";
 
 const BACKUP_COMMON_DEFAULT = {
-  scope: "enterpriseflow" as const,
+  scope: "wikiflow" as const,
   includeExtractCache: false,
   excludePatterns: [] as string[],
   scheduleEnabled: false,
@@ -20,7 +20,7 @@ const BACKUP_COMMON_DEFAULT = {
 
 export function renderBackupSettings(
   containerEl: HTMLElement,
-  plugin: EnterpriseFlowPlugin,
+  plugin: WikiFlowPlugin,
 ): void {
   const tr = createTranslator();
   const s = tr.settings();
@@ -56,11 +56,11 @@ export function renderBackupSettings(
   new Setting(containerEl)
     .setName(s.backup.scope)
     .addDropdown((dropdown) => {
-      dropdown.addOption("enterpriseflow", s.backup.scopeEnterpriseFlow);
+      dropdown.addOption("wikiflow", s.backup.scopeWikiFlow);
       dropdown.addOption("full", s.backup.scopeFull);
       dropdown.setValue(common.scope);
       dropdown.onChange(async (value) => {
-        common.scope = value as "full" | "enterpriseflow";
+        common.scope = value as "full" | "wikiflow";
         await plugin.saveSettings();
       });
     });
@@ -141,7 +141,7 @@ export function renderBackupSettings(
 function renderS3Fields(
   containerEl: HTMLElement,
   backup: S3BackupSettings,
-  plugin: EnterpriseFlowPlugin,
+  plugin: WikiFlowPlugin,
   labels: SettingsMessages["s3"],
 ): void {
   const fields: [keyof S3BackupSettings, string][] = [
@@ -183,7 +183,7 @@ function renderS3Fields(
 function renderGitHubFields(
   containerEl: HTMLElement,
   backup: GitHubBackupSettings,
-  plugin: EnterpriseFlowPlugin,
+  plugin: WikiFlowPlugin,
   labels: SettingsMessages["github"],
 ): void {
   const fields: [keyof GitHubBackupSettings, string, boolean?][] = [
@@ -237,7 +237,7 @@ function createBackupSettings(
       endpoint: prev?.endpoint ?? "",
       region: prev?.region ?? "us-east-1",
       bucket: prev?.bucket ?? "",
-      prefix: prev?.prefix ?? "enterpriseflow",
+      prefix: prev?.prefix ?? "wikiflow",
       accessKeyId: prev?.accessKeyId ?? "",
       secretAccessKey: prev?.secretAccessKey ?? "",
       forcePathStyle: prev?.forcePathStyle ?? false,

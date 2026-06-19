@@ -21,7 +21,7 @@ import {
   WORKFLOW_VIEW_TYPE,
   WorkflowView,
 } from "./workflow/ui/workflow-view";
-import { EnterpriseFlowSettingTab } from "./ui/settings-tab";
+import { WikiFlowSettingTab } from "./ui/settings-tab";
 import { openQueryView, QUERY_VIEW_TYPE, QueryView } from "./ui/query-view";
 import { openLintModal } from "./ui/lint-modal";
 import { openRestoreBackupModal } from "./ui/restore-modal";
@@ -32,7 +32,7 @@ import { showNotice } from "./ui/notice";
 import type { WikiInstance } from "@shared/types/wiki-instance";
 import type { RestoreReport } from "@shared/types/backup";
 
-export default class EnterpriseFlowPlugin extends Plugin {
+export default class WikiFlowPlugin extends Plugin {
   settings: PluginSettings = { ...DEFAULT_SETTINGS };
   core!: CoreServices;
   wiki!: WikiService;
@@ -42,7 +42,7 @@ export default class EnterpriseFlowPlugin extends Plugin {
   private lastBackupSummary = "";
 
   private statusBarItem: HTMLElement | null = null;
-  private settingsTab: EnterpriseFlowSettingTab | null = null;
+  private settingsTab: WikiFlowSettingTab | null = null;
   private ingestProgress: IngestProgressIndicator | null = null;
   private fileDebounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private unsubscribers: (() => void)[] = [];
@@ -94,7 +94,7 @@ export default class EnterpriseFlowPlugin extends Plugin {
     this.registerWorkflowView();
     this.registerQueryView();
 
-    this.settingsTab = new EnterpriseFlowSettingTab(this.app, this);
+    this.settingsTab = new WikiFlowSettingTab(this.app, this);
     this.addSettingTab(this.settingsTab);
     this.setupStatusBar();
     this.registerIngestProgress();
@@ -103,7 +103,7 @@ export default class EnterpriseFlowPlugin extends Plugin {
     this.refreshBackupSchedule();
     this.scanRawFolderOnLoad();
 
-    this.core.logger.info("EnterpriseFlow loaded", {
+    this.core.logger.info("WikiFlow loaded", {
       version: this.manifest.version,
     });
   }
@@ -173,7 +173,7 @@ export default class EnterpriseFlowPlugin extends Plugin {
         : tr.statusBar("backupProvider", {
             provider: this.settings.backup.provider,
           }));
-    this.statusBarItem.setText(`EnterpriseFlow · ${llm} · ${backup}`);
+    this.statusBarItem.setText(`WikiFlow · ${llm} · ${backup}`);
   }
 
   refreshBackupSchedule(): void {
@@ -772,4 +772,4 @@ export default class EnterpriseFlowPlugin extends Plugin {
   }
 }
 
-export { EnterpriseFlowPlugin };
+export { WikiFlowPlugin };

@@ -1,22 +1,13 @@
 const LINE_PREFIX_RE = /^\s*(?:\d+[.)]\s*|[-*•]\s+)+/;
-const THINKING_BLOCK_RE =
-  /<(?:think|redacted_thinking)>[\s\S]*?<\/(?:think|redacted_thinking)>/gi;
 const META_LINE_RE = /^(the user|i need to|let me|okay,|sure,)/i;
+
+import { stripLlmNoise } from "@shared/strip-llm-noise";
+
+export { stripLlmNoise };
 
 export interface WikiQueryResult {
   question: string;
   answer: string;
-}
-
-/** Remove model reasoning wrappers from LLM text output. */
-export function stripLlmNoise(text: string): string {
-  let out = text.replace(THINKING_BLOCK_RE, "");
-  out = out.replace(
-    /<(?:think|redacted_thinking)>[\s\S]*?(?=\n[^\n]*[\u4e00-\u9fff])/gi,
-    "",
-  );
-  out = out.replace(/<(?:think|redacted_thinking)>[\s\S]*/gi, "");
-  return out.trim();
 }
 
 export function coerceQuestionSource(

@@ -1,21 +1,21 @@
-/* EnterpriseFlow plugin styles — expanded in later phases */
+/* WikiFlow plugin styles — expanded in later phases */
 
-.enterpriseflow-settings .setting-item-description {
+.wikiflow-settings .setting-item-description {
   font-size: 0.85em;
 }
 
-.enterpriseflow-ingest-notice {
+.wikiflow-ingest-notice {
   border-left: 3px solid var(--interactive-accent);
   font-weight: 500;
 }
 
-.enterpriseflow-ingest-notice--active::before {
+.wikiflow-ingest-notice--active::before {
   content: "⟳ ";
   display: inline-block;
-  animation: enterpriseflow-spin 1s linear infinite;
+  animation: wikiflow-spin 1s linear infinite;
 }
 
-.enterpriseflow-ingest-status {
+.wikiflow-ingest-status {
   color: var(--interactive-accent);
   font-weight: 500;
   max-width: 45vw;
@@ -24,7 +24,7 @@
   white-space: nowrap;
 }
 
-@keyframes enterpriseflow-spin {
+@keyframes wikiflow-spin {
   from {
     transform: rotate(0deg);
   }

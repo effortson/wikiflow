@@ -7,7 +7,7 @@ import { resolveWikiId } from "../instance-resolver";
 import type { ExtractorRegistry } from "../extractors/registry";
 import { publishIngestProgress } from "../ingest-progress-publisher";
 import { sourcePathForRaw } from "./source-paths";
-import { buildSourceMarkdown, parseEnterpriseSource } from "./source-markdown";
+import { buildSourceMarkdown, parseWikiFlowSource } from "./source-markdown";
 import { TFile, TFolder, type Vault } from "obsidian";
 
 export interface RawToSourceDeps {
@@ -90,7 +90,7 @@ export async function syncRawFileToSource(
 
   if (await deps.core.vault.exists(sourcePath)) {
     const existing = await deps.core.vault.readText(sourcePath);
-    const { meta } = parseEnterpriseSource(existing);
+    const { meta } = parseWikiFlowSource(existing);
     if (meta?.rawContentHash === rawContentHash) {
       const file = deps.vault.getAbstractFileByPath(sourcePath);
       if (file instanceof TFile) {
@@ -122,7 +122,7 @@ export async function syncRawFileToSource(
 
   const markdown = buildSourceMarkdown(
     {
-      enterpriseflowSource: true,
+      wikiflowSource: true,
       wikiId,
       rawPath: rawFile.path,
       rawContentHash,

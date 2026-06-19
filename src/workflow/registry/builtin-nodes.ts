@@ -309,7 +309,7 @@ export function createBuiltinNodeRegistry(
     async execute(ctx, config, _inputs) {
       const resolved = resolveRecord(config, ctx.variables);
       const report = await ctx.services.backup.push({
-        scope: resolved.scope as "full" | "enterpriseflow" | undefined,
+        scope: resolved.scope as "full" | "wikiflow" | undefined,
         signal: ctx.signal,
       });
       return { report };

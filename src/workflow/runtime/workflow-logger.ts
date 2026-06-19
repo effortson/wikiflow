@@ -1,6 +1,6 @@
 import type { WorkflowStepEvent } from "@shared/types/workflow-step";
 
-const PREFIX = "[EnterpriseFlow:workflow]";
+const PREFIX = "[WikiFlow:workflow]";
 
 export function logWorkflowStep(step: WorkflowStepEvent): void {
   const label = `${step.nodeId} (${step.nodeType})`;

@@ -10,7 +10,7 @@ import { resolveWikiId } from "./instance-resolver";
 import { ExtractorRegistry } from "./extractors/registry";
 import { publishIngestProgress } from "./ingest-progress-publisher";
 import { isUnderFolder } from "./source/source-paths";
-import { parseEnterpriseSource } from "./source/source-markdown";
+import { parseWikiFlowSource } from "./source/source-markdown";
 import type { TFile } from "obsidian";
 
 export interface ExtractDeps {
@@ -58,7 +58,7 @@ async function extractSourceMarkdown(
   const bytes = await core.vault.getVault().readBinary(file);
   const contentHash = await sha256Hex(bytes);
   const text = new TextDecoder("utf-8").decode(bytes);
-  const { meta, body } = parseEnterpriseSource(text);
+  const { meta, body } = parseWikiFlowSource(text);
   const title = file.basename.replace(/\.md$/i, "");
 
   const cached = buildSourceCachedExtract({
@@ -106,7 +106,7 @@ function buildSourceCachedExtract(input: {
   contentHash: string;
   title: string;
   body: string;
-  meta: ReturnType<typeof parseEnterpriseSource>["meta"];
+  meta: ReturnType<typeof parseWikiFlowSource>["meta"];
   pluginVersion: string;
 }): CachedExtract {
   const paragraphs = input.body.trim()
@@ -145,7 +145,7 @@ function buildSourceCachedExtract(input: {
       : [
           {
             code: "unsupported_feature" as const,
-            message: "Source markdown missing enterpriseflowSource frontmatter",
+            message: "Source markdown missing wikiflowSource frontmatter",
           },
         ],
   };

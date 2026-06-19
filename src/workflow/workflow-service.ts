@@ -133,7 +133,7 @@ export class EnterpriseWorkflowService implements WorkflowService {
         rootRunId,
       });
       console.log(
-        `[EnterpriseFlow:workflow] Run started ${def.id} (${runId})`,
+        `[WikiFlow:workflow] Run started ${def.id} (${runId})`,
       );
     }
 
@@ -237,7 +237,7 @@ export class EnterpriseWorkflowService implements WorkflowService {
     if (isRoot) {
       this.ctx.core.events.publish("workflow:done", report);
       console.log(
-        `[EnterpriseFlow:workflow] Run ${report.status} ${def.id} (${runId})`,
+        `[WikiFlow:workflow] Run ${report.status} ${def.id} (${runId})`,
         report.error ? { error: report.error } : { outputs: report.outputs },
       );
     } else if (options.parentRunId) {

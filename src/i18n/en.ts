@@ -1,7 +1,7 @@
 import type { UiMessages } from "./types";
 
 export const en: UiMessages = {
-  pluginName: "EnterpriseFlow",
+  pluginName: "WikiFlow",
   commands: {
     ingestCurrentFile: "Source → Wiki: current file",
     ingestActiveWiki: "Source → Wiki: active wiki (all files)",
@@ -93,7 +93,7 @@ export const en: UiMessages = {
       s3: "S3 / MinIO",
       github: "GitHub",
       scope: "Scope",
-      scopeEnterpriseFlow: "EnterpriseFlow data",
+      scopeWikiFlow: "WikiFlow data",
       scopeFull: "Full vault",
       includeExtractCache: "Include extract cache",
       retentionCount: "Retention count",
@@ -135,7 +135,7 @@ export const en: UiMessages = {
     indexRebuilt: 'Query index rebuilt for "{wikiId}".',
     indexRebuildFailed: "Index rebuild failed: {message}",
     llmNotConfigured:
-      "Configure LLM API key and model in EnterpriseFlow settings.",
+      "Configure LLM API key and model in WikiFlow settings.",
     ingestingWiki: 'Ingesting wiki "{wikiId}"…',
     wikiIngestFailed: "Wiki ingest failed: {message}",
     wikiIngestResult:
@@ -163,22 +163,40 @@ export const en: UiMessages = {
       "Generated schema from {count} source file(s): {path}",
     schemaGenerateFailed: "Schema generation failed: {message}",
     rawRootViolation:
-      "EnterpriseFlow: move raw/ files into raw/{wikiId}/ — found: {preview}{more}",
+      "WikiFlow: move raw/ files into raw/{wikiId}/ — found: {preview}{more}",
     rawRootViolationMore: " (+{count} more)",
   },
   queryView: {
     title: "Wiki Q&A",
+    mode: "Answer mode",
+    modeWiki: "Wiki search",
+    modeWorkflow: "Workflow",
     wiki: "Wiki",
     wikiDesc: "Query scope — only pages under this wiki instance",
+    wikiDescWorkflow: "Provides {{wikiId}} context for the workflow",
+    workflow: "Workflow",
+    workflowDesc: "Must start with User input and end with output.text",
+    noWorkflow: "No .workflow.json files found.",
+    workflowInvalid: "Workflow is not valid for Q&A: {error}",
+    workflowRunning: "Running workflow…",
+    workflowNoAnswer: "Workflow finished but output.text produced no result.",
+    workflowRunTitle: "Workflow run",
     question: "Question",
     questionPlaceholder: "Ask about entities, concepts, or sources in this wiki…",
+    questionPlaceholderWorkflow: "Your question is passed to the User input trigger…",
     ask: "Ask",
     clear: "Clear",
     hint: "Cmd/Ctrl+Enter to submit",
     thinking: "Thinking…",
-    llmNotConfigured: "Configure LLM in EnterpriseFlow settings first.",
+    llmNotConfigured: "Configure LLM in WikiFlow settings first.",
     noWiki: "No wiki instances found. Create raw/{wikiId}/ first.",
     citations: "Cited pages",
     emptyAnswer: "Answers will appear here with markdown and wikilinks.",
+    elapsedSeconds: "{seconds}s",
+    systemPrompt: "System prompt",
+    userPrompt: "User prompt",
+    promptVarsHint:
+      "Variables: {{wikiId}}, {{question}}, {{context}}, {{languageInstruction}}",
+    resetPrompt: "Reset to default",
   },
 };

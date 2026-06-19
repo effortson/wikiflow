@@ -1,7 +1,7 @@
 import type { RunReport } from "@shared/types/workflow";
 import type { VaultAdapter } from "../../core/vault/vault-adapter";
 
-const RUNS_ROOT = ".enterpriseflow/runs";
+const RUNS_ROOT = ".wikiflow/runs";
 
 export class RunStore {
   constructor(private vault: VaultAdapter) {}

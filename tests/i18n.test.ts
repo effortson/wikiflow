@@ -20,7 +20,7 @@ describe("i18n", () => {
   it("formats command names and notices", () => {
     const tr = createTranslator("zh-CN");
     expect(tr.command("ingestCurrentFile")).toBe(
-      "EnterpriseFlow: Source → Wiki：当前文件",
+      "WikiFlow: Source → Wiki：当前文件",
     );
     expect(tr.notice("ingestingFile", { name: "a.pdf" })).toBe(
       "正在摄取 a.pdf…",

@@ -32,7 +32,7 @@ import { WorkflowRunEdge } from "./WorkflowRunEdge";
 import { NodePalette } from "./NodePalette";
 import { NodeInspector } from "./NodeInspector";
 import { RunTreePanel } from "./RunTreePanel";
-import type { WorkflowEditorDeps } from "./workflow-editor-deps";
+import type { WorkflowEditorDeps, WorkflowMeta } from "./workflow-editor-deps";
 import {
   applyValidationToNodes,
   applyNodeIdChange,
@@ -61,17 +61,22 @@ import {
 
 export interface WorkflowEditorProps {
   deps: WorkflowEditorDeps;
-  initialPath?: string | null;
+  activePath?: string | null;
 }
 
 const nodeTypes = { workflowNode: WorkflowNodeComponent };
 const edgeTypes = { workflowRun: WorkflowRunEdge };
 
-function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
+function WorkflowEditorInner({ deps, activePath }: WorkflowEditorProps) {
   const [definition, setDefinition] = useState<WorkflowDefinition>(() =>
     createEmptyWorkflow(),
   );
-  const [filePath, setFilePath] = useState<string | null>(initialPath ?? null);
+  const [meta, setMeta] = useState<WorkflowMeta>(() => ({
+    name: definition.name,
+    id: definition.id,
+    description: definition.description,
+  }));
+  const [filePath, setFilePath] = useState<string | null>(activePath ?? null);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [runReport, setRunReport] = useState<RunReport | null>(null);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
@@ -79,6 +84,23 @@ function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
   const [statusKind, setStatusKind] = useState<"info" | "error" | "running">("info");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [flowRevision, setFlowRevision] = useState(0);
+  const loadGenerationRef = useRef(0);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+
+  const publishMeta = useCallback(
+    (next: WorkflowMeta) => {
+      deps.onWorkflowMetaChange?.(next);
+    },
+    [deps],
+  );
+
+  const applyMeta = useCallback(
+    (next: WorkflowMeta) => {
+      setMeta(next);
+      publishMeta(next);
+    },
+    [publishMeta],
+  );
 
   const [nodeRunStates, setNodeRunStates] = useState<
     Record<string, WorkflowNodeRunSnapshot>
@@ -145,10 +167,19 @@ function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
 
   const loadWorkflow = useCallback(
     async (path: string) => {
+      const generation = ++loadGenerationRef.current;
       try {
         const def = await deps.loadWorkflow(path);
+        if (generation !== loadGenerationRef.current) return;
+
         const flow = definitionToFlow(def);
+        const nextMeta: WorkflowMeta = {
+          name: def.name,
+          id: def.id,
+          description: def.description,
+        };
         setDefinition(def);
+        applyMeta(nextMeta);
         setNodes(flow.nodes);
         setEdges(flow.edges);
         setFlowRevision((r) => r + 1);
@@ -158,15 +189,16 @@ function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
         clearRunStates();
         setStatus(`Loaded ${path}`);
       } catch (err) {
+        if (generation !== loadGenerationRef.current) return;
         setStatus(err instanceof Error ? err.message : String(err));
       }
     },
-    [deps, setEdges, setNodes, clearRunStates],
+    [deps, setEdges, setNodes, clearRunStates, applyMeta],
   );
 
   useEffect(() => {
-    if (initialPath) void loadWorkflow(initialPath);
-  }, [initialPath, loadWorkflow]);
+    if (activePath) void loadWorkflow(activePath);
+  }, [activePath, loadWorkflow]);
 
   useEffect(() => {
     const offDone = deps.subscribeWorkflowDone((report) => {
@@ -206,10 +238,17 @@ function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
     [deps, setNodes],
   );
 
-  const currentDefinition = useCallback(
-    () => flowToDefinition(definition, nodes, edges),
-    [definition, nodes, edges],
-  );
+  const currentDefinition = useCallback(() => {
+    const draftName = nameInputRef.current?.value.trim();
+    const resolvedMeta: WorkflowMeta = {
+      ...meta,
+      name: draftName || meta.name,
+    };
+    return {
+      ...flowToDefinition(definition, nodes, edges),
+      ...resolvedMeta,
+    };
+  }, [definition, nodes, edges, meta]);
 
   const handleSave = async () => {
     const def = currentDefinition();
@@ -221,6 +260,11 @@ function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
       await deps.saveWorkflow(path, def);
       setFilePath(path);
       setDefinition(def);
+      applyMeta({
+        name: def.name,
+        id: def.id,
+        description: def.description,
+      });
       setStatus(`Saved ${path}`);
     } catch (err) {
       setStatus(err instanceof Error ? err.message : String(err));
@@ -369,7 +413,7 @@ function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
 
   const onDrop = (event: DragEvent) => {
     event.preventDefault();
-    const type = event.dataTransfer.getData("application/enterpriseflow-node");
+    const type = event.dataTransfer.getData("application/wikiflow-node");
     if (!type || !reactFlowWrapper.current || !reactFlow.current) return;
 
     const bounds = reactFlowWrapper.current.getBoundingClientRect();
@@ -458,15 +502,28 @@ function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
         <div className="ef-workflow-header__title-block">
           <div className="ef-workflow-header__name-row">
             <input
+              ref={nameInputRef}
               className="ef-workflow-header__name"
-              value={definition.name}
+              value={meta.name}
               onChange={(e) => {
                 const name = e.target.value;
+                applyMeta({
+                  ...meta,
+                  name,
+                  id: meta.id || slugify(name),
+                });
                 setDefinition((d) => ({ ...d, name, id: d.id || slugify(name) }));
               }}
               placeholder="Workflow name"
             />
-            <PencilIcon />
+            <button
+              type="button"
+              className="ef-workflow-header__name-edit"
+              aria-label="Edit workflow name"
+              onClick={() => nameInputRef.current?.focus()}
+            >
+              <PencilIcon />
+            </button>
           </div>
           <div className="ef-workflow-header__meta">
             <span className="ef-workflow-header__path">{displayPath}</span>
@@ -634,7 +691,7 @@ function WorkflowEditorInner({ deps, initialPath }: WorkflowEditorProps) {
         <div className="ef-workflow-statusbar__spacer" />
         <span className="ef-workflow-statusbar__status">
           <StatusCheckIcon />
-          EnterpriseFlow
+          WikiFlow
         </span>
       </footer>
     </div>

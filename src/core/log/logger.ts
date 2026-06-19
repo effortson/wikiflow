@@ -27,7 +27,7 @@ export class Logger {
     message: string,
     data?: Record<string, unknown>,
   ): void {
-    const prefix = `[EnterpriseFlow:${level}]`;
+    const prefix = `[WikiFlow:${level}]`;
     if (data) {
       console.log(prefix, message, data);
     } else {

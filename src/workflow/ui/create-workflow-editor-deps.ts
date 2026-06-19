@@ -1,15 +1,19 @@
 import type { WorkflowDefinition } from "@shared/types/workflow";
-import type { WorkflowEditorDeps } from "./workflow-editor-deps";
+import type { WorkflowEditorDeps, WorkflowMeta } from "./workflow-editor-deps";
 import type { WorkflowViewHost } from "./workflow-view";
 import { showNotice } from "../../ui/notice";
 import { promptUserInput } from "./user-input-modal";
 
 export function createWorkflowEditorDeps(
   host: WorkflowViewHost,
+  options?: {
+    onMetaChange?: (meta: WorkflowMeta) => void;
+  },
 ): WorkflowEditorDeps {
   return {
     workflowsFolder: host.settings.workflowsFolder,
     activeWikiId: host.settings.activeWikiId,
+    onWorkflowMetaChange: options?.onMetaChange,
     loadWorkflow: (path) => host.workflow.load(path),
     saveWorkflow: (path, def) =>
       host.core.vault.writeText(path, JSON.stringify(def, null, 2)),

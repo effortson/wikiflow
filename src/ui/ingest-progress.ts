@@ -106,20 +106,20 @@ export class IngestProgressIndicator {
 
     if (!this.notice) {
       this.notice = new Notice(detail, 0);
-      this.notice.noticeEl.addClass("enterpriseflow-ingest-notice");
+      this.notice.noticeEl.addClass("wikiflow-ingest-notice");
     } else {
       this.notice.setMessage(detail);
     }
 
     if (active) {
-      this.notice.noticeEl.addClass("enterpriseflow-ingest-notice--active");
+      this.notice.noticeEl.addClass("wikiflow-ingest-notice--active");
     } else {
-      this.notice.noticeEl.removeClass("enterpriseflow-ingest-notice--active");
+      this.notice.noticeEl.removeClass("wikiflow-ingest-notice--active");
     }
 
     if (!this.statusItem) {
       this.statusItem = this.host.addStatusBarItem();
-      this.statusItem.addClass("enterpriseflow-ingest-status");
+      this.statusItem.addClass("wikiflow-ingest-status");
     }
     this.statusItem.setText(statusText);
   }

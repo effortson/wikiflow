@@ -44,11 +44,15 @@ export interface PluginSettings {
 
   debug: boolean;
 
+  /** Wiki Q&A custom prompts; empty uses built-in defaults. */
+  querySystemPrompt?: string;
+  queryUserPrompt?: string;
+
   backup: BackupSettings;
 }
 
 const DEFAULT_BACKUP_COMMON = {
-  scope: "enterpriseflow" as const,
+  scope: "wikiflow" as const,
   includeExtractCache: false,
   excludePatterns: [] as string[],
   scheduleEnabled: false,
@@ -97,11 +101,14 @@ function mergeBackupSettings(
     return { provider: "none", ...DEFAULT_BACKUP_COMMON };
   }
 
+  const scope =
+    "scope" in loaded && loaded.scope
+      ? loaded.scope === "enterpriseflow"
+        ? "wikiflow"
+        : loaded.scope
+      : DEFAULT_BACKUP_COMMON.scope;
   const common = {
-    scope:
-      "scope" in loaded && loaded.scope
-        ? loaded.scope
-        : DEFAULT_BACKUP_COMMON.scope,
+    scope: scope as BackupSettings["scope"],
     includeExtractCache:
       "includeExtractCache" in loaded
         ? Boolean(loaded.includeExtractCache)
@@ -131,7 +138,7 @@ function mergeBackupSettings(
       endpoint: loaded.endpoint ?? "",
       region: loaded.region ?? "us-east-1",
       bucket: loaded.bucket ?? "",
-      prefix: loaded.prefix ?? "enterpriseflow",
+      prefix: loaded.prefix ?? "wikiflow",
       accessKeyId: loaded.accessKeyId ?? "",
       secretAccessKey: loaded.secretAccessKey ?? "",
       forcePathStyle: loaded.forcePathStyle ?? false,

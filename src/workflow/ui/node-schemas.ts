@@ -253,7 +253,7 @@ export const NODE_CATALOG: NodeCatalogEntry[] = [
         label: "Scope",
         type: "select",
         options: [
-          { value: "enterpriseflow", label: "enterpriseflow" },
+          { value: "wikiflow", label: "wikiflow" },
           { value: "full", label: "full" },
         ],
       },

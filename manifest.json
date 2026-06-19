@@ -1,6 +1,6 @@
 {
-  "id": "enterpriseflow",
-  "name": "EnterpriseFlow",
+  "id": "wikiflow",
+  "name": "WikiFlow",
   "version": "0.1.0",
   "minAppVersion": "1.11.0",
   "description": "Document Wiki (multi-format ingest → knowledge graph) and visual workflow automation.",

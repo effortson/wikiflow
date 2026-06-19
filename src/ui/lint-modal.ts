@@ -1,4 +1,4 @@
-import type { EnterpriseFlowPlugin } from "../main";
+import type { WikiFlowPlugin } from "../main";
 import type { WikiId } from "@shared/types/wiki-instance";
 import type { LintReport } from "@shared/types/wiki";
 import { App, Modal, Setting } from "obsidian";
@@ -6,7 +6,7 @@ import { App, Modal, Setting } from "obsidian";
 export class LintModal extends Modal {
   constructor(
     app: App,
-    private plugin: EnterpriseFlowPlugin,
+    private plugin: WikiFlowPlugin,
     private wikiId: WikiId,
   ) {
     super(app);
@@ -54,7 +54,7 @@ export class LintModal extends Modal {
       if (issue.pagePath) {
         li.createEl("div", {
           text: issue.pagePath,
-          cls: "enterpriseflow-lint-path",
+          cls: "wikiflow-lint-path",
         });
       }
     }
@@ -87,7 +87,7 @@ export class LintModal extends Modal {
 }
 
 export function openLintModal(
-  plugin: EnterpriseFlowPlugin,
+  plugin: WikiFlowPlugin,
   wikiId: WikiId,
 ): void {
   new LintModal(plugin.app, plugin, wikiId).open();

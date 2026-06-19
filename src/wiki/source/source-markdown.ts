@@ -1,9 +1,13 @@
 import { parseMarkdown, stringifyMarkdown } from "@shared/frontmatter";
+import {
+  LEGACY_WIKIFLOW_SOURCE_KEY,
+  WIKIFLOW_SOURCE_KEY,
+} from "@shared/plugin-constants";
 
-export const EF_SOURCE_KEY = "enterpriseflowSource";
+export { WIKIFLOW_SOURCE_KEY };
 
-export interface EnterpriseSourceFrontmatter {
-  enterpriseflowSource: true;
+export interface WikiFlowSourceFrontmatter {
+  wikiflowSource: true;
   wikiId: string;
   rawPath: string;
   rawContentHash: string;
@@ -13,7 +17,7 @@ export interface EnterpriseSourceFrontmatter {
 }
 
 export function buildSourceMarkdown(
-  frontmatter: EnterpriseSourceFrontmatter,
+  frontmatter: WikiFlowSourceFrontmatter,
   body: string,
 ): string {
   const trimmed = body.trim();
@@ -24,17 +28,20 @@ export function buildSourceMarkdown(
   );
 }
 
-export function parseEnterpriseSource(content: string): {
-  meta: EnterpriseSourceFrontmatter | null;
+export function parseWikiFlowSource(content: string): {
+  meta: WikiFlowSourceFrontmatter | null;
   body: string;
 } {
   const { frontmatter, body } = parseMarkdown(content);
-  if (frontmatter[EF_SOURCE_KEY] !== true) {
+  const isSource =
+    frontmatter[WIKIFLOW_SOURCE_KEY] === true ||
+    frontmatter[LEGACY_WIKIFLOW_SOURCE_KEY] === true;
+  if (!isSource) {
     return { meta: null, body };
   }
   return {
     meta: {
-      enterpriseflowSource: true,
+      wikiflowSource: true,
       wikiId: String(frontmatter.wikiId ?? ""),
       rawPath: String(frontmatter.rawPath ?? ""),
       rawContentHash: String(frontmatter.rawContentHash ?? ""),

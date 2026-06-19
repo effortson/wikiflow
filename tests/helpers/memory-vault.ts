@@ -9,7 +9,7 @@ export class MemoryVault {
 
   constructor() {
     this.mkdirp("workflows");
-    this.mkdirp(".enterpriseflow/runs");
+    this.mkdirp(".wikiflow/runs");
   }
 
   normalize(path: string): string {

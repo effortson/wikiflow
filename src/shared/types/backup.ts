@@ -1,5 +1,5 @@
 export type BackupProvider = "none" | "s3" | "github";
-export type BackupScope = "full" | "enterpriseflow";
+export type BackupScope = "full" | "wikiflow";
 
 export interface BackupManifestEntry {
   path: string;

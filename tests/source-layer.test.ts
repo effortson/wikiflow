@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { sourcePathForRaw } from "../src/wiki/source/source-paths";
 import {
   buildSourceMarkdown,
-  parseEnterpriseSource,
+  parseWikiFlowSource,
 } from "../src/wiki/source/source-markdown";
 
 describe("source-paths", () => {
@@ -21,7 +21,7 @@ describe("source-markdown", () => {
   it("round-trips enterprise source frontmatter", () => {
     const md = buildSourceMarkdown(
       {
-        enterpriseflowSource: true,
+        wikiflowSource: true,
         wikiId: "legal",
         rawPath: "raw/legal/report.pdf",
         rawContentHash: "abc123",
@@ -32,7 +32,7 @@ describe("source-markdown", () => {
       "| A | B |\n|---|---|\n| 1 | 2 |",
     );
 
-    const parsed = parseEnterpriseSource(md);
+    const parsed = parseWikiFlowSource(md);
     expect(parsed.meta?.rawPath).toBe("raw/legal/report.pdf");
     expect(parsed.meta?.rawContentHash).toBe("abc123");
     expect(parsed.body).toContain("| A | B |");

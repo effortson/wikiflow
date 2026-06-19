@@ -1,15 +1,15 @@
 import { App, DropdownComponent, PluginSettingTab, Setting } from "obsidian";
-import type { EnterpriseFlowPlugin } from "../main";
+import type { WikiFlowPlugin } from "../main";
 import { createTranslator, formatMessage } from "../i18n";
 import { showNotice } from "./notice";
 import { renderBackupSettings } from "./backup-settings";
 
-export class EnterpriseFlowSettingTab extends PluginSettingTab {
+export class WikiFlowSettingTab extends PluginSettingTab {
   private wikiDropdown: DropdownComponent | null = null;
 
   constructor(
     app: App,
-    private plugin: EnterpriseFlowPlugin,
+    private plugin: WikiFlowPlugin,
   ) {
     super(app, plugin);
   }
@@ -17,7 +17,7 @@ export class EnterpriseFlowSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.addClass("enterpriseflow-settings");
+    containerEl.addClass("wikiflow-settings");
     this.wikiDropdown = null;
 
     const tr = createTranslator();

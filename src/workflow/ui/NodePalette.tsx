@@ -35,7 +35,7 @@ export function NodePalette({ onAdd }: NodePaletteProps) {
               className={`ef-palette-item ${getNodeCategoryClass(node.type)}`}
               draggable
               onDragStart={(e) => {
-                e.dataTransfer.setData("application/enterpriseflow-node", node.type);
+                e.dataTransfer.setData("application/wikiflow-node", node.type);
                 e.dataTransfer.effectAllowed = "move";
               }}
               onClick={() => onAdd(node.type)}

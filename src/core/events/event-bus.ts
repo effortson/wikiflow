@@ -10,7 +10,7 @@ import type { WorkflowStepEvent } from "@shared/types/workflow-step";
 import type { ContentHash, SourceId } from "@shared/types/normalized-document";
 import type { IngestProgressEvent } from "@shared/types/ingest-progress";
 
-export interface EnterpriseFlowEvents {
+export interface WikiFlowEvents {
   "file:added": { path: string; wikiId: WikiId | null };
   "extract:done": {
     wikiId: WikiId;
@@ -39,9 +39,9 @@ type Handler<T> = (payload: T) => void;
 export class EventBus {
   private listeners = new Map<string, Set<Handler<unknown>>>();
 
-  publish<K extends keyof EnterpriseFlowEvents>(
+  publish<K extends keyof WikiFlowEvents>(
     event: K,
-    payload: EnterpriseFlowEvents[K],
+    payload: WikiFlowEvents[K],
   ): void {
     const set = this.listeners.get(event);
     if (!set) return;
@@ -49,14 +49,14 @@ export class EventBus {
       try {
         handler(payload);
       } catch (err) {
-        console.error(`[EnterpriseFlow] Event handler failed for ${event}`, err);
+        console.error(`[WikiFlow] Event handler failed for ${event}`, err);
       }
     }
   }
 
-  subscribe<K extends keyof EnterpriseFlowEvents>(
+  subscribe<K extends keyof WikiFlowEvents>(
     event: K,
-    handler: Handler<EnterpriseFlowEvents[K]>,
+    handler: Handler<WikiFlowEvents[K]>,
   ): () => void {
     const key = event as string;
     let set = this.listeners.get(key);
@@ -68,9 +68,9 @@ export class EventBus {
     return () => this.off(event, handler);
   }
 
-  off<K extends keyof EnterpriseFlowEvents>(
+  off<K extends keyof WikiFlowEvents>(
     event: K,
-    handler: Handler<EnterpriseFlowEvents[K]>,
+    handler: Handler<WikiFlowEvents[K]>,
   ): void {
     this.listeners.get(event as string)?.delete(handler as Handler<unknown>);
   }
