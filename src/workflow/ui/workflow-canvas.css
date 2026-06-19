@@ -443,7 +443,10 @@
 }
 
 .ef-palette-group {
-  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
 .ef-palette-group__title {
