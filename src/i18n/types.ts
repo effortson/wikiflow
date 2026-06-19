@@ -105,6 +105,8 @@ export interface SettingsMessages {
     none: string;
     fileDebounce: string;
     fileDebounceDesc: string;
+    showQueryPrompts: string;
+    showQueryPromptsDesc: string;
     debugLogging: string;
   };
   backup: {

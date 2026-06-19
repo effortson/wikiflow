@@ -88,6 +88,11 @@ export class QueryView extends ItemView {
     }
   }
 
+  refreshLayout(): void {
+    if (!this.containerEl.isConnected || this.running) return;
+    this.render();
+  }
+
   async onOpen(): Promise<void> {
     ensureQueryStyles();
     if (!this.wikiId) {
@@ -206,9 +211,12 @@ export class QueryView extends ItemView {
       });
     }
 
-    const promptsHost = container.createDiv({
-      cls: "wikiflow-query-prompts",
-    });
+    const promptsHost = this.plugin.settings.showQueryPrompts
+      ? container.createDiv({
+          cls: "wikiflow-query-prompts",
+        })
+      : null;
+    if (promptsHost) {
     const commitPrompt = async (
       key: "querySystemPrompt" | "queryUserPrompt",
       value: string,
@@ -252,6 +260,10 @@ export class QueryView extends ItemView {
         onValueCommit: (value) => void commitPrompt("queryUserPrompt", value),
       },
     );
+    } else {
+      this.systemPromptSection = null;
+      this.userPromptSection = null;
+    }
 
     this.questionInput = container.createEl("textarea", {
       cls: "wikiflow-query-question",

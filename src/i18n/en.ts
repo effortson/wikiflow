@@ -86,6 +86,9 @@ export const en: UiMessages = {
       fileDebounce: "New-file auto-trigger delay (seconds)",
       fileDebounceDesc:
         "After a file is created under raw/{wikiId}/, wait this many seconds (debounce) before firing file-added workflows. Increase for sync/bulk imports; use 0 for immediate trigger.",
+      showQueryPrompts: "Show Q&A prompts",
+      showQueryPromptsDesc:
+        "Show editable system and user prompts in the Wiki Q&A panel",
       debugLogging: "Debug logging",
     },
     backup: {

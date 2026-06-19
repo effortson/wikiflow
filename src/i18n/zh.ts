@@ -85,6 +85,8 @@ export const zh: UiMessages = {
       fileDebounce: "新文件自动触发延迟（秒）",
       fileDebounceDesc:
         "在 raw/{wikiId}/ 下检测到新文件后，先等待该秒数（去抖），再触发 file-added 工作流。网盘同步或批量导入时可调大；设为 0 则几乎立即触发。",
+      showQueryPrompts: "显示问答提示词",
+      showQueryPromptsDesc: "在 Wiki 问答界面显示可编辑的系统提示词和用户提示词",
       debugLogging: "调试日志",
     },
     backup: {

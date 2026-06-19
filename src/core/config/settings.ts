@@ -48,6 +48,8 @@ export interface PluginSettings {
   /** Wiki Q&A custom prompts; empty uses built-in defaults. */
   querySystemPrompt?: string;
   queryUserPrompt?: string;
+  /** Show editable system/user prompts in the Wiki Q&A panel. */
+  showQueryPrompts: boolean;
 
   backup: BackupSettings;
 }
@@ -91,6 +93,8 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   fileAddedDebounceSeconds: 5,
 
   debug: false,
+
+  showQueryPrompts: false,
 
   backup: { provider: "none", ...DEFAULT_BACKUP_COMMON },
 };

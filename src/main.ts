@@ -196,6 +196,15 @@ export default class WikiFlowPlugin extends Plugin {
     this.settingsTab?.display();
   }
 
+  refreshQueryViews(): void {
+    for (const leaf of this.app.workspace.getLeavesOfType(QUERY_VIEW_TYPE)) {
+      const view = leaf.view;
+      if (view instanceof QueryView) {
+        view.refreshLayout();
+      }
+    }
+  }
+
   private async pushBackup(source: string): Promise<void> {
     const tr = this.ui();
     try {

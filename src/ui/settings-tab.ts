@@ -125,6 +125,17 @@ export class WikiFlowSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName(s.wiki.showQueryPrompts)
+      .setDesc(s.wiki.showQueryPromptsDesc)
+      .addToggle((toggle) =>
+        toggle.setValue(settings.showQueryPrompts).onChange(async (value) => {
+          this.plugin.settings.showQueryPrompts = value;
+          await this.plugin.saveSettings();
+          this.plugin.refreshQueryViews();
+        }),
+      );
+
+    new Setting(containerEl)
       .setName(s.wiki.fileDebounce)
       .setDesc(s.wiki.fileDebounceDesc)
       .addText((text) =>
