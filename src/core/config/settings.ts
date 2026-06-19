@@ -1,4 +1,5 @@
 import type { BackupSettings } from "@shared/types/backup";
+import { normalizeApiKey } from "@shared/llm-api-key";
 import {
   DEFAULT_WIKI_LANGUAGE,
   type WikiLanguage,
@@ -160,6 +161,9 @@ function mergeBackupSettings(
 export function clampSettings(settings: PluginSettings): PluginSettings {
   return {
     ...settings,
+    apiKey: normalizeApiKey(settings.apiKey),
+    baseUrl: settings.baseUrl.trim(),
+    model: settings.model.trim(),
     pageGenerationConcurrency: Math.max(
       1,
       Math.min(16, Math.floor(settings.pageGenerationConcurrency) || 1),

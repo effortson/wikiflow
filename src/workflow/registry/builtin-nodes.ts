@@ -19,7 +19,7 @@ import {
   parseQuestionsInput,
   stripLlmNoise,
 } from "../shared/parse-questions";
-import { queryWikiAnswer } from "../shared/query-wiki";
+import { queryWikiAnswer, queryWikiAnswersBatch } from "../shared/query-wiki";
 import { NodeRegistry } from "./node-registry";
 
 export interface BuiltinNodesOptions {
@@ -222,23 +222,13 @@ export function createBuiltinNodeRegistry(
         throw new Error("wiki.query-batch requires at least one question");
       }
 
-      const results = [];
-      const answers: string[] = [];
-      for (const question of questions) {
-        let answer: string;
-        try {
-          answer = await queryWikiAnswer(
-            ctx.services.wiki,
-            wikiId,
-            question,
-            ctx.signal,
-          );
-        } catch (err) {
-          answer = err instanceof Error ? err.message : String(err);
-        }
-        results.push({ question, answer });
-        answers.push(answer);
-      }
+      const results = await queryWikiAnswersBatch(
+        ctx.services.wiki,
+        wikiId,
+        questions,
+        ctx.signal,
+      );
+      const answers = results.map((item) => item.answer);
 
       const combined = formatWikiQueryResults(results);
       return { answers, results, combined };

@@ -54,9 +54,11 @@ export const zh: UiMessages = {
     },
     llm: {
       apiKey: "LLM API 密钥",
-      apiKeyDesc: "本地保存在 data.json",
+      apiKeyDesc:
+        "本地保存在 data.json。DeepSeek 密钥（sk-…）来自 platform.deepseek.com；MiniMax Token Plan 密钥（sk-cp-…）需配合 https://api.minimax.io/v1",
       baseUrl: "LLM 接口地址",
-      baseUrlDesc: "兼容 OpenAI 的 API 端点",
+      baseUrlDesc:
+        "兼容 OpenAI 的 API 端点。DeepSeek：https://api.deepseek.com。MiniMax（sk-cp- 密钥）：https://api.minimax.io/v1",
       model: "模型",
       testConnection: "测试 LLM 连接",
       testConnectionDesc: "使用上方配置发送一条最小 chat 请求",

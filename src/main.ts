@@ -132,7 +132,7 @@ export default class WikiFlowPlugin extends Plugin {
   }
 
   async saveSettings(): Promise<void> {
-    this.settings = clampSettings(this.settings);
+    Object.assign(this.settings, clampSettings(this.settings));
     await this.saveData(this.settings);
     this.core.settings = this.settings;
   }

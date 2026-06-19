@@ -28,7 +28,6 @@ export function WorkflowNodeComponent({ data, selected }: NodeProps) {
       style={
         {
           "--ef-accent": theme.accent,
-          "--ef-accent-soft": theme.soft,
         } as CSSProperties
       }
       title={nodeData.nodeType}

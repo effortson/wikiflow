@@ -1,6 +1,7 @@
 import { App, DropdownComponent, PluginSettingTab, Setting } from "obsidian";
 import type { WikiFlowPlugin } from "../main";
 import { createTranslator, formatMessage } from "../i18n";
+import { normalizeApiKey } from "@shared/llm-api-key";
 import { showNotice } from "./notice";
 import { renderBackupSettings } from "./backup-settings";
 
@@ -34,8 +35,10 @@ export class WikiFlowSettingTab extends PluginSettingTab {
           .setPlaceholder("sk-...")
           .setValue(settings.apiKey)
           .onChange(async (value) => {
-            settings.apiKey = value;
-            settings.llmReady = Boolean(value && settings.model);
+            this.plugin.settings.apiKey = normalizeApiKey(value);
+            this.plugin.settings.llmReady = Boolean(
+              this.plugin.settings.apiKey && this.plugin.settings.model.trim(),
+            );
             await this.plugin.saveSettings();
             this.plugin.refreshStatusBar();
           }),
@@ -54,9 +57,14 @@ export class WikiFlowSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName(s.llm.model)
       .addText((text) =>
-        text.setValue(settings.model).onChange(async (value) => {
-          settings.model = value;
-          settings.llmReady = Boolean(settings.apiKey && value);
+        text
+          .setPlaceholder("gpt-4o-mini / deepseek-chat")
+          .setValue(settings.model).onChange(async (value) => {
+          this.plugin.settings.model = value.trim();
+          this.plugin.settings.llmReady = Boolean(
+            this.plugin.settings.apiKey &&
+              this.plugin.settings.model.trim(),
+          );
           await this.plugin.saveSettings();
           this.plugin.refreshStatusBar();
         }),
@@ -150,8 +158,10 @@ export class WikiFlowSettingTab extends PluginSettingTab {
     const tr = createTranslator();
     const s = tr.settings();
     const settings = this.plugin.settings;
+    const apiKey = normalizeApiKey(settings.apiKey);
+    const model = settings.model.trim();
 
-    if (!settings.apiKey.trim() || !settings.model.trim()) {
+    if (!apiKey || !model) {
       showNotice(s.llm.testMissingConfig, { level: "warn" });
       return;
     }

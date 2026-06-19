@@ -11,7 +11,7 @@ import {
 } from "./node-schemas";
 import type { WorkflowNodeData } from "./workflow-adapter";
 import { defaultNodeId } from "./node-id";
-import { getNodeInitial, getNodeTheme } from "./node-theme";
+import { getNodeCategoryClass, getNodeInitial, getNodeTheme } from "./node-theme";
 import {
   DeleteIcon,
   DuplicateIcon,
@@ -110,11 +110,10 @@ export function NodeInspector({
       </div>
 
       <div
-        className="ef-inspector-card"
+        className={`ef-inspector-card ${getNodeCategoryClass(node.data.nodeType)}`}
         style={
           {
             "--ef-accent": theme.accent,
-            "--ef-accent-soft": theme.soft,
           } as CSSProperties
         }
       >

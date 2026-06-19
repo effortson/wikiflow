@@ -23,7 +23,7 @@ function createCtx(wikiQuery: (wikiId: string, question: string) => AsyncGenerat
 }
 
 describe("wiki.query-batch node", () => {
-  it("queries each question sequentially and returns combined output", async () => {
+  it("queries each question in parallel and returns combined output in order", async () => {
     const calls: string[] = [];
     const ctx = createCtx(async function* (_wikiId, question) {
       calls.push(question);
@@ -50,6 +50,37 @@ describe("wiki.query-batch node", () => {
     expect(outputs.answers).toEqual(["answer:泄漏检测", "answer:变频改造"]);
     expect(outputs.combined).toContain("### 1. 泄漏检测");
     expect(outputs.combined).toContain("answer:变频改造");
+  });
+
+  it("runs batch queries concurrently", async () => {
+    let inFlight = 0;
+    let maxInFlight = 0;
+
+    const ctx = createCtx(async function* (_wikiId, _question) {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      inFlight -= 1;
+      yield { kind: "done" as const, answer: "ok" };
+    });
+
+    const registry = createBuiltinNodeRegistry({
+      getSettings: () => DEFAULT_SETTINGS,
+      runSubworkflow: async () => ({}),
+    });
+    const node = registry.get("wiki.query-batch")!;
+
+    await node.execute(
+      ctx,
+      {
+        wikiId: "demo",
+        questions: "q1\nq2\nq3",
+        maxQuestions: "5",
+      },
+      {},
+    );
+
+    expect(maxInFlight).toBeGreaterThan(1);
   });
 
   it("uses upstream text when questions field is omitted", async () => {

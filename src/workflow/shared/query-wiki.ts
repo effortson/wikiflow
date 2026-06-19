@@ -1,4 +1,5 @@
 import type { WikiService } from "../../wiki/service";
+import type { WikiQueryResult } from "./parse-questions";
 
 export async function queryWikiAnswer(
   wiki: WikiService,
@@ -23,4 +24,26 @@ export async function queryWikiAnswer(
   }
 
   return answer;
+}
+
+/** Run wiki Q&A for multiple questions concurrently; output order matches input. */
+export async function queryWikiAnswersBatch(
+  wiki: WikiService,
+  wikiId: string,
+  questions: string[],
+  signal: AbortSignal,
+): Promise<WikiQueryResult[]> {
+  return Promise.all(
+    questions.map(async (question) => {
+      try {
+        const answer = await queryWikiAnswer(wiki, wikiId, question, signal);
+        return { question, answer };
+      } catch (err) {
+        return {
+          question,
+          answer: err instanceof Error ? err.message : String(err),
+        };
+      }
+    }),
+  );
 }

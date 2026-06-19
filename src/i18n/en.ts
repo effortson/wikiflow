@@ -54,9 +54,11 @@ export const en: UiMessages = {
     },
     llm: {
       apiKey: "LLM API key",
-      apiKeyDesc: "Stored locally in data.json",
+      apiKeyDesc:
+        "Stored locally in data.json. DeepSeek keys (sk-…) from platform.deepseek.com; MiniMax Token Plan keys (sk-cp-…) need https://api.minimax.io/v1",
       baseUrl: "LLM base URL",
-      baseUrlDesc: "OpenAI-compatible endpoint",
+      baseUrlDesc:
+        "OpenAI-compatible endpoint. DeepSeek: https://api.deepseek.com. MiniMax (sk-cp- keys): https://api.minimax.io/v1",
       model: "Model",
       testConnection: "Test LLM connection",
       testConnectionDesc: "Send a minimal chat request using the settings above",

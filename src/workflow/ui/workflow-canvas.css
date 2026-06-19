@@ -1,23 +1,36 @@
-/* Workflow editor — light design system (standalone reference) */
+/* Workflow editor — follows Obsidian light/dark theme tokens */
 
 .ef-workflow-editor {
-  --ef-bg: #f7f8fa;
-  --ef-surface: #ffffff;
-  --ef-surface-muted: #fcfcfd;
-  --ef-border: #e9ebef;
-  --ef-border-strong: #e3e5ea;
-  --ef-text: #1a1d23;
-  --ef-text-secondary: #454b54;
-  --ef-text-muted: #9aa0aa;
-  --ef-text-faint: #aab0b9;
-  --ef-primary: #6366f1;
-  --ef-primary-dark: #5b5bd6;
+  --ef-bg: var(--background-secondary, #f7f8fa);
+  --ef-surface: var(--background-primary, #ffffff);
+  --ef-surface-muted: var(--background-secondary-alt, #fcfcfd);
+  --ef-border: var(--background-modifier-border, #e9ebef);
+  --ef-border-strong: var(--background-modifier-border-hover, #e3e5ea);
+  --ef-hover: var(--background-modifier-hover, #f5f6f8);
+  --ef-code-bg: var(--background-modifier-form-field, #fafbfc);
+  --ef-text: var(--text-normal, #1a1d23);
+  --ef-text-secondary: var(--text-muted, #454b54);
+  --ef-text-muted: var(--text-faint, #9aa0aa);
+  --ef-text-faint: var(--text-faint, #aab0b9);
+  --ef-primary: var(--interactive-accent, #6366f1);
+  --ef-primary-dark: var(--interactive-accent-hover, #5b5bd6);
+  --ef-danger: var(--text-error, #dc4f5a);
+  --ef-danger-border: color-mix(in srgb, var(--ef-danger) 35%, var(--ef-border));
+  --ef-danger-soft: color-mix(in srgb, var(--ef-danger) 12%, var(--ef-surface));
+  --ef-success: #0c8a55;
+  --ef-success-soft: color-mix(in srgb, #10b981 14%, var(--ef-surface));
+  --ef-success-border: color-mix(in srgb, #10b981 35%, var(--ef-border));
+  --ef-header-bg: color-mix(in srgb, var(--ef-surface) 88%, transparent);
+  --ef-canvas-dot: color-mix(in srgb, var(--ef-border) 85%, var(--ef-text-muted));
+  --ef-edge-stroke: color-mix(in srgb, var(--ef-border-strong) 70%, var(--ef-text-muted));
+  --ef-shadow-sm: 0 1px 2px color-mix(in srgb, var(--ef-text) 7%, transparent);
+  --ef-shadow-md: 0 4px 12px color-mix(in srgb, var(--ef-text) 5%, transparent);
   --ef-radius-sm: 6px;
   --ef-radius-md: 10px;
   --ef-radius-lg: 14px;
   --ef-radius-xl: 15px;
-  --ef-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --ef-mono: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+  --ef-font: var(--font-interface, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --ef-mono: var(--font-monospace, ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace);
 
   display: flex;
   flex-direction: column;
@@ -26,6 +39,27 @@
   color: var(--ef-text);
   font-family: var(--ef-font);
   -webkit-font-smoothing: antialiased;
+}
+
+.theme-dark .ef-workflow-editor {
+  --ef-success: #34d399;
+  --ef-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --ef-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --ef-header-bg: color-mix(in srgb, var(--ef-surface) 92%, transparent);
+}
+
+.theme-dark .ef-workflow-editor [class*="ef-node-cat--"] {
+  --ef-accent-soft: color-mix(in srgb, var(--ef-accent) 24%, var(--ef-surface));
+}
+
+.wikiflow-workflow-view,
+.wikiflow-workflow-mount {
+  background: var(--background-secondary);
+  color: var(--text-normal);
+}
+
+.ef-icon--success {
+  color: var(--ef-success);
 }
 
 .wikiflow-workflow-view,
@@ -37,7 +71,7 @@
 }
 
 .ef-workflow-editor ::selection {
-  background: #ddddfb;
+  background: color-mix(in srgb, var(--ef-primary) 28%, transparent);
 }
 
 .ef-workflow-editor ::-webkit-scrollbar {
@@ -46,14 +80,14 @@
 }
 
 .ef-workflow-editor ::-webkit-scrollbar-thumb {
-  background: #dadce2;
+  background: var(--ef-border-strong);
   border-radius: 8px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 .ef-workflow-editor ::-webkit-scrollbar-thumb:hover {
-  background: #c4c8d0;
+  background: color-mix(in srgb, var(--ef-border-strong) 70%, var(--ef-text-muted));
   background-clip: content-box;
 }
 
@@ -64,7 +98,7 @@
   gap: 14px;
   height: 58px;
   padding: 0 18px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--ef-header-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--ef-border);
   z-index: 5;
@@ -124,6 +158,7 @@
   margin: 0;
   border: none;
   background: transparent;
+  color: var(--ef-text-muted);
   cursor: pointer;
   flex: none;
 }
@@ -209,7 +244,7 @@
 }
 
 .ef-workflow-header__status--error {
-  color: #d14343;
+  color: var(--ef-danger);
 }
 
 .ef-workflow-header__status--info {
@@ -240,15 +275,15 @@
 }
 
 .ef-validation-pill--valid {
-  background: #e9f8ef;
-  border: 1px solid #c4ecd4;
-  color: #0c8a55;
+  background: var(--ef-success-soft);
+  border: 1px solid var(--ef-success-border);
+  color: var(--ef-success);
 }
 
 .ef-validation-pill--invalid {
-  background: #fdf2f3;
-  border: 1px solid #f3d2d6;
-  color: #dc4f5a;
+  background: var(--ef-danger-soft);
+  border: 1px solid var(--ef-danger-border);
+  color: var(--ef-danger);
 }
 
 .ef-validation-pill__dot {
@@ -289,7 +324,7 @@
   bottom: 8px;
   font-size: 10px;
   font-weight: 600;
-  color: #bcc0c8;
+  color: var(--ef-text-muted);
   pointer-events: none;
   z-index: 4;
 }
@@ -326,8 +361,8 @@
 }
 
 .ef-btn:hover {
-  background: #f5f6f8;
-  border-color: #d6d9df;
+  background: var(--ef-hover);
+  border-color: var(--ef-border-strong);
 }
 
 .ef-btn:disabled {
@@ -365,14 +400,14 @@
   width: 100%;
   height: 36px;
   margin-top: 4px;
-  border-color: #f3d2d6;
-  color: #dc4f5a;
+  border-color: var(--ef-danger-border);
+  color: var(--ef-danger);
   font-size: 12.5px;
 }
 
 .ef-btn--danger-block:hover {
-  background: #fdf2f3;
-  border-color: #f3d2d6;
+  background: var(--ef-danger-soft);
+  border-color: var(--ef-danger-border);
 }
 
 /* ===== Palette ===== */
@@ -402,7 +437,7 @@
   font-size: 11px;
   font-weight: 600;
   color: var(--ef-text-muted);
-  background: #f3f4f6;
+  background: var(--ef-hover);
   padding: 3px 8px;
   border-radius: 999px;
 }
@@ -434,7 +469,7 @@
 }
 
 .ef-palette-item:hover {
-  background: #f6f7f9;
+  background: var(--ef-hover);
 }
 
 .ef-palette-item__icon {
@@ -459,7 +494,7 @@
   min-width: 0;
   font-size: 13.5px;
   font-weight: 600;
-  color: #363b42;
+  color: var(--ef-text);
   line-height: 1.25;
   text-align: left;
 }
@@ -501,11 +536,9 @@
   min-height: 96px;
   padding: 14px 15px;
   border-radius: var(--ef-radius-xl);
-  border: 1px solid #eaecf0;
+  border: 1px solid var(--ef-border);
   background: var(--ef-surface);
-  box-shadow:
-    0 1px 2px rgba(16, 24, 40, 0.07),
-    0 4px 12px rgba(16, 24, 40, 0.05);
+  box-shadow: var(--ef-shadow-sm), var(--ef-shadow-md);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -523,7 +556,7 @@
 }
 
 .ef-workflow-node.has-error {
-  border-color: #f3d2d6;
+  border-color: var(--ef-danger-border);
 }
 
 .ef-workflow-node__main {
@@ -588,7 +621,7 @@
   gap: 6px;
   font-size: 11px;
   font-weight: 600;
-  color: #8b919b;
+  color: var(--ef-text-muted);
 }
 
 .ef-workflow-node__status-dot {
@@ -618,7 +651,7 @@
 
 .ef-workflow-node__status--failed,
 .ef-workflow-node__status--error {
-  color: #dc4f5a;
+  color: var(--ef-danger);
 }
 
 .ef-workflow-node__badge {
@@ -760,12 +793,34 @@
   }
 }
 
+.ef-workflow-canvas .react-flow {
+  background: var(--ef-bg);
+}
+
+.ef-workflow-canvas .react-flow__edge-path {
+  stroke: var(--ef-edge-stroke);
+  stroke-width: 2.5;
+}
+
+.ef-workflow-canvas .react-flow__background pattern circle {
+  fill: var(--ef-canvas-dot) !important;
+}
+
+.ef-workflow-canvas .react-flow__minimap-mask {
+  fill: color-mix(in srgb, var(--ef-bg) 82%, transparent);
+}
+
+.ef-workflow-canvas .react-flow__minimap-node {
+  fill: var(--ef-surface);
+  stroke: var(--ef-border);
+}
+
 /* React Flow chrome */
 .ef-workflow-canvas .react-flow__controls {
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-md);
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.08);
+  box-shadow: var(--ef-shadow-sm);
 }
 
 .ef-workflow-canvas .react-flow__controls-button {
@@ -775,14 +830,15 @@
 }
 
 .ef-workflow-canvas .react-flow__controls-button:hover {
-  background: #f5f6f8;
+  background: var(--ef-hover);
 }
 
 .ef-workflow-canvas .react-flow__minimap {
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-md);
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.08);
+  box-shadow: var(--ef-shadow-sm);
+  background: var(--ef-surface);
 }
 
 .ef-workflow-canvas .react-flow__panel {
@@ -820,7 +876,7 @@
   align-items: center;
   text-align: center;
   gap: 10px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  box-shadow: var(--ef-shadow-sm);
 }
 
 .ef-inspector-empty__icon {
@@ -851,7 +907,7 @@
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg);
   padding: 15px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  box-shadow: var(--ef-shadow-sm);
 }
 
 .ef-inspector-card__hero {
@@ -868,6 +924,7 @@
   place-items: center;
   flex: none;
   color: var(--ef-accent);
+  background: var(--ef-accent-soft);
   font-weight: 800;
   font-size: 15px;
 }
@@ -884,7 +941,7 @@
   justify-content: space-between;
   margin-top: 13px;
   padding-top: 13px;
-  border-top: 1px solid #f0f1f4;
+  border-top: 1px solid var(--ef-border);
   gap: 8px;
 }
 
@@ -909,17 +966,17 @@
   gap: 6px;
   height: 36px;
   background: var(--ef-surface);
-  border: 1px solid #e6e8ec;
+  border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-md);
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 600;
-  color: #5a606a;
+  color: var(--ef-text-secondary);
   cursor: pointer;
 }
 
 .ef-inspector-action:hover:not(:disabled) {
-  background: #f5f6f8;
+  background: var(--ef-hover);
 }
 
 .ef-inspector-action:disabled {
@@ -928,12 +985,12 @@
 }
 
 .ef-inspector-action--danger {
-  border-color: #f3d2d6;
-  color: #dc4f5a;
+  border-color: var(--ef-danger-border);
+  color: var(--ef-danger);
 }
 
 .ef-inspector-action--danger:hover:not(:disabled) {
-  background: #fdf2f3;
+  background: var(--ef-danger-soft);
 }
 
 .ef-inspector-card__badge {
@@ -998,7 +1055,7 @@
 
 .ef-inspector-card__id-error {
   font-size: 11px;
-  color: #d14343;
+  color: var(--ef-danger);
   line-height: 1.35;
 }
 
@@ -1027,7 +1084,7 @@
 .ef-field > span {
   font-size: 12px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--ef-text-secondary);
   padding-left: 2px;
 }
 
@@ -1037,11 +1094,11 @@
   width: 100%;
   min-height: 38px;
   padding: 8px 12px;
-  border: 1px solid #e6e8ec;
+  border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-md);
-  background: var(--ef-surface);
+  background: var(--ef-code-bg);
   font-size: 13px;
-  color: #363b42;
+  color: var(--ef-text);
   font-family: inherit;
 }
 
@@ -1051,13 +1108,13 @@
 }
 
 .ef-inspector-errors {
-  color: #dc4f5a;
+  color: var(--ef-danger);
   font-size: 12px;
   margin: 8px 0;
   padding: 8px 10px;
-  background: #fdf2f3;
+  background: var(--ef-danger-soft);
   border-radius: var(--ef-radius-md);
-  border: 1px solid #f3d2d6;
+  border: 1px solid var(--ef-danger-border);
 }
 
 .ef-outputs-panel {
@@ -1065,7 +1122,7 @@
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg);
   padding: 12px 14px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  box-shadow: var(--ef-shadow-sm);
 }
 
 .ef-outputs-panel h4 {
@@ -1097,7 +1154,7 @@
   border: 1px solid var(--ef-border);
   border-radius: var(--ef-radius-lg);
   padding: 12px 14px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  box-shadow: var(--ef-shadow-sm);
 }
 
 .ef-run-io h4 {
@@ -1120,18 +1177,18 @@
 }
 
 .ef-run-io__badge--started {
-  background: rgba(59, 130, 246, 0.15);
-  color: #2563eb;
+  background: color-mix(in srgb, #3b82f6 18%, var(--ef-surface));
+  color: #60a5fa;
 }
 
 .ef-run-io__badge--completed {
-  background: rgba(16, 185, 129, 0.15);
-  color: #0c8a55;
+  background: var(--ef-success-soft);
+  color: var(--ef-success);
 }
 
 .ef-run-io__badge--failed {
-  background: rgba(239, 68, 68, 0.15);
-  color: #dc4f5a;
+  background: var(--ef-danger-soft);
+  color: var(--ef-danger);
 }
 
 .ef-io-block__json {
@@ -1142,8 +1199,8 @@
   max-height: 180px;
   overflow: auto;
   border-radius: var(--ef-radius-md);
-  border: 1px solid #e6e8ec;
-  background: #fafbfc;
+  border: 1px solid var(--ef-border);
+  background: var(--ef-code-bg);
   white-space: pre-wrap;
   word-break: break-word;
   font-family: var(--ef-mono);
@@ -1172,7 +1229,7 @@
 
 .ef-run-empty {
   background: var(--ef-surface);
-  border: 1px dashed #dadce2;
+  border: 1px dashed var(--ef-border-strong);
   border-radius: var(--ef-radius-lg);
   padding: 22px 16px;
   display: flex;
@@ -1188,7 +1245,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  color: #7c5cf5;
+  color: var(--ef-primary);
 }
 
 .ef-run-empty__title {
@@ -1217,8 +1274,8 @@
   margin-bottom: 8px;
   padding: 8px;
   border-radius: var(--ef-radius-md);
-  background: #fafbfc;
-  border: 1px solid #f0f1f4;
+  background: var(--ef-code-bg);
+  border: 1px solid var(--ef-border);
 }
 
 .ef-run-node__header {
@@ -1237,27 +1294,27 @@
 }
 
 .ef-run-status--completed {
-  background: #e9f8ef;
-  color: #0c8a55;
+  background: var(--ef-success-soft);
+  color: var(--ef-success);
 }
 
 .ef-run-status--failed {
-  background: #fdf2f3;
-  color: #dc4f5a;
+  background: var(--ef-danger-soft);
+  color: var(--ef-danger);
 }
 
 .ef-run-status--cancelled {
-  background: #fef9e7;
-  color: #b45309;
+  background: color-mix(in srgb, #f59e0b 18%, var(--ef-surface));
+  color: #fbbf24;
 }
 
 .ef-run-status--running {
-  background: rgba(59, 130, 246, 0.12);
-  color: #2563eb;
+  background: color-mix(in srgb, #3b82f6 18%, var(--ef-surface));
+  color: #60a5fa;
 }
 
 .ef-run-error {
-  color: #dc4f5a;
+  color: var(--ef-danger);
   margin-top: 4px;
   font-size: 11px;
 }
@@ -1278,7 +1335,7 @@
 }
 
 .ef-workflow-statusbar__sep {
-  color: #dadce2;
+  color: var(--ef-border-strong);
 }
 
 .ef-workflow-statusbar__spacer {
@@ -1292,6 +1349,6 @@
 }
 
 .ef-workflow-statusbar__error {
-  color: #d14343;
+  color: var(--ef-danger);
 }
 

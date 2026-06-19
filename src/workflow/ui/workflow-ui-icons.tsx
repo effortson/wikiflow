@@ -94,7 +94,7 @@ export function EmptyInspectorIcon({ size = 22 }: { size?: number }) {
 
 export function PencilIcon({ size = 13 }: { size?: number }) {
   return (
-    <Svg size={size} stroke="#9aa0aa" strokeWidth="2">
+    <Svg size={size} strokeWidth="2">
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
     </Svg>
@@ -103,7 +103,7 @@ export function PencilIcon({ size = 13 }: { size?: number }) {
 
 export function RunPanelIcon({ size = 15 }: { size?: number }) {
   return (
-    <Svg size={size} stroke="#5b5bd6">
+    <Svg size={size}>
       <path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" />
     </Svg>
   );
@@ -120,7 +120,7 @@ export function DuplicateIcon({ size = 14 }: { size?: number }) {
 
 export function StatusCheckIcon({ size = 13 }: { size?: number }) {
   return (
-    <Svg size={size} stroke="#10b981" strokeWidth="2">
+    <Svg size={size} strokeWidth="2" className="ef-icon--success">
       <path d="M20 6L9 17l-5-5" />
     </Svg>
   );

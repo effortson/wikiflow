@@ -2,6 +2,12 @@ import { requestUrl, type RequestUrlResponse } from "obsidian";
 import type { PluginSettings } from "../config/settings";
 import { Logger } from "../log/logger";
 import { abortable, throwIfAborted } from "@shared/abort";
+import {
+  diagnoseLlmConfigIssue,
+  hintForLlmAuthFailure,
+  normalizeApiKey,
+} from "@shared/llm-api-key";
+import { resolveChatCompletionsUrl } from "@shared/llm-url";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -42,11 +48,17 @@ export class OpenAICompatibleLLMService implements LLMService {
 
   async chat(options: LLMChatOptions): Promise<string> {
     const settings = this.getSettings();
-    if (!settings.apiKey) {
+    const apiKey = normalizeApiKey(settings.apiKey);
+    if (!apiKey) {
       throw new Error("LLM API key is not configured");
     }
 
-    const url = `${settings.baseUrl.replace(/\/$/, "")}/chat/completions`;
+    const configIssue = diagnoseLlmConfigIssue(apiKey, settings.baseUrl);
+    if (configIssue) {
+      throw new Error(configIssue);
+    }
+
+    const url = resolveChatCompletionsUrl(settings.baseUrl);
 
     const response = await abortable(
       requestUrl({
@@ -54,7 +66,7 @@ export class OpenAICompatibleLLMService implements LLMService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${settings.apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model: settings.model,
@@ -78,13 +90,20 @@ export class OpenAICompatibleLLMService implements LLMService {
         status: response.status,
         body: response.text?.slice(0, 240),
       });
-      throw new Error(formatLlmHttpError(response));
+      throw new Error(
+        formatLlmHttpError(response, "LLM request failed", apiKey, settings.baseUrl),
+      );
     }
 
     const json = response.json as {
-      choices?: { message?: { content?: string } }[];
+      choices?: {
+        message?: {
+          content?: string | null;
+          reasoning_content?: string | null;
+        };
+      }[];
     };
-    const content = json.choices?.[0]?.message?.content;
+    const content = extractAssistantText(json.choices?.[0]?.message);
     if (content == null) {
       throw new Error("LLM response missing content");
     }
@@ -93,11 +112,12 @@ export class OpenAICompatibleLLMService implements LLMService {
 
   async vision(options: LLMVisionOptions): Promise<string> {
     const settings = this.getSettings();
-    if (!settings.apiKey) {
+    const apiKey = normalizeApiKey(settings.apiKey);
+    if (!apiKey) {
       throw new Error("LLM API key is not configured");
     }
 
-    const url = `${settings.baseUrl.replace(/\/$/, "")}/chat/completions`;
+    const url = resolveChatCompletionsUrl(settings.baseUrl);
     const dataUrl = `data:${options.mimeType};base64,${options.base64}`;
 
     const response = await abortable(
@@ -106,7 +126,7 @@ export class OpenAICompatibleLLMService implements LLMService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${settings.apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model: options.model ?? settings.model,
@@ -135,13 +155,25 @@ export class OpenAICompatibleLLMService implements LLMService {
         status: response.status,
         body: response.text?.slice(0, 240),
       });
-      throw new Error(formatLlmHttpError(response, "LLM vision request failed"));
+      throw new Error(
+        formatLlmHttpError(
+          response,
+          "LLM vision request failed",
+          apiKey,
+          settings.baseUrl,
+        ),
+      );
     }
 
     const json = response.json as {
-      choices?: { message?: { content?: string } }[];
+      choices?: {
+        message?: {
+          content?: string | null;
+          reasoning_content?: string | null;
+        };
+      }[];
     };
-    const content = json.choices?.[0]?.message?.content;
+    const content = extractAssistantText(json.choices?.[0]?.message);
     if (content == null) {
       throw new Error("LLM vision response missing content");
     }
@@ -150,20 +182,26 @@ export class OpenAICompatibleLLMService implements LLMService {
 
   async testConnection(): Promise<string> {
     const settings = this.getSettings();
-    if (!settings.apiKey) {
+    const apiKey = normalizeApiKey(settings.apiKey);
+    if (!apiKey) {
       throw new Error("LLM API key is not configured");
     }
     if (!settings.model.trim()) {
       throw new Error("LLM model is not configured");
     }
 
-    const url = `${settings.baseUrl.replace(/\/$/, "")}/chat/completions`;
+    const configIssue = diagnoseLlmConfigIssue(apiKey, settings.baseUrl);
+    if (configIssue) {
+      throw new Error(configIssue);
+    }
+
+    const url = resolveChatCompletionsUrl(settings.baseUrl);
     const response = await requestUrl({
       url,
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${settings.apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: settings.model,
@@ -180,36 +218,71 @@ export class OpenAICompatibleLLMService implements LLMService {
         status: response.status,
         body: response.text,
       });
-      throw new Error(formatLlmHttpError(response, "LLM test failed"));
+      throw new Error(
+        formatLlmHttpError(response, "LLM test failed", apiKey, settings.baseUrl),
+      );
     }
 
     const json = response.json as {
-      choices?: { message?: { content?: string } }[];
+      choices?: {
+        message?: {
+          content?: string | null;
+          reasoning_content?: string | null;
+        };
+      }[];
     };
-    const content = json.choices?.[0]?.message?.content;
+    const content = extractAssistantText(json.choices?.[0]?.message);
     if (content == null) {
       throw new Error("LLM test response missing content");
     }
-    return content.trim();
+    return content;
   }
+}
+
+function extractAssistantText(
+  message:
+    | {
+        content?: string | null;
+        reasoning_content?: string | null;
+      }
+    | undefined,
+): string | null {
+  if (!message) return null;
+  const content = message.content?.trim();
+  if (content) return content;
+  const reasoning = message.reasoning_content?.trim();
+  if (reasoning) return reasoning;
+  return null;
 }
 
 function formatLlmHttpError(
   response: RequestUrlResponse,
   prefix = "LLM request failed",
+  apiKey = "",
+  baseUrl = "",
 ): string {
   const body = response.text?.trim();
+  let detail = "";
   if (!body) {
-    return `${prefix} (${response.status})`;
+    detail = String(response.status);
+  } else {
+    try {
+      const json = JSON.parse(body) as {
+        error?: { message?: string };
+        message?: string;
+      };
+      detail = json.error?.message ?? json.message ?? body;
+    } catch {
+      detail = body.slice(0, 240);
+    }
   }
-  try {
-    const json = JSON.parse(body) as {
-      error?: { message?: string };
-      message?: string;
-    };
-    const detail = json.error?.message ?? json.message ?? body;
-    return `${prefix} (${response.status}): ${detail}`;
-  } catch {
-    return `${prefix} (${response.status}): ${body.slice(0, 240)}`;
+
+  if (response.status === 401 && apiKey) {
+    const hint = hintForLlmAuthFailure(apiKey, baseUrl);
+    if (hint) {
+      return `${prefix} (${response.status}): ${detail}. ${hint}`;
+    }
   }
+
+  return body ? `${prefix} (${response.status}): ${detail}` : `${prefix} (${response.status})`;
 }

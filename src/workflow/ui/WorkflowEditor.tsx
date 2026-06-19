@@ -630,9 +630,7 @@ function WorkflowEditorInner({ deps, activePath }: WorkflowEditorProps) {
             onNodeDragStop={onNodesDragStop}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
-            defaultEdgeOptions={{
-              style: { stroke: "#b9bec9", strokeWidth: 2.5 },
-            }}
+            defaultEdgeOptions={{}}
             fitView
             onInit={(instance) => {
               reactFlow.current = instance;
@@ -642,7 +640,6 @@ function WorkflowEditorInner({ deps, activePath }: WorkflowEditorProps) {
               variant={BackgroundVariant.Dots}
               gap={22}
               size={1.1}
-              color="#dcdfe6"
             />
             <Controls />
             <MiniMap pannable zoomable />
