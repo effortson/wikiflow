@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "cycle-a",
+  "name": "Cycle A",
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger.manual",
+      "position": { "x": 0, "y": 0 },
+      "data": {}
+    },
+    {
+      "id": "sub",
+      "type": "workflow.subworkflow",
+      "position": { "x": 200, "y": 0 },
+      "data": {
+        "workflowRef": "tests/fixtures/workflows/cycle-b.workflow.json",
+        "inputMapping": {}
+      }
+    }
+  ],
+  "edges": [{ "id": "e1", "from": "trigger", "to": "sub" }]
+}

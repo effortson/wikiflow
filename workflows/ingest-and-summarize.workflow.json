@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "ingest-and-summarize",
+  "name": "Ingest and summarize",
+  "description": "Pick a file, ingest via subworkflow, then summarize with LLM",
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger.manual",
+      "position": { "x": 0, "y": 0 },
+      "data": {}
+    },
+    {
+      "id": "pick",
+      "type": "file.pick",
+      "position": { "x": 200, "y": 0 },
+      "data": {}
+    },
+    {
+      "id": "sub",
+      "type": "workflow.subworkflow",
+      "position": { "x": 400, "y": 0 },
+      "data": {
+        "workflowRef": "workflows/ingest-single-file.workflow.json",
+        "inputMapping": {
+          "path": "{{path}}",
+          "wikiId": "{{wikiId}}"
+        },
+        "outputMapping": {
+          "report": "ingestReport"
+        }
+      }
+    },
+    {
+      "id": "summarize",
+      "type": "llm.chat",
+      "position": { "x": 600, "y": 0 },
+      "data": {
+        "user": "Summarize the ingest result in one sentence."
+      }
+    },
+    {
+      "id": "notice",
+      "type": "output.notice",
+      "position": { "x": 800, "y": 0 },
+      "data": {
+        "message": "{{summary}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "from": "trigger", "to": "pick" },
+    { "id": "e2", "from": "pick", "to": "sub" },
+    { "id": "e3", "from": "sub", "to": "summarize" },
+    { "id": "e4", "from": "summarize", "to": "notice" }
+  ]
+}

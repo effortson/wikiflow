@@ -1,0 +1,43 @@
+{
+  "name": "enterpriseflow",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Obsidian plugin: document Wiki + workflow automation",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production",
+    "lint": "eslint src tests",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run lint && npx tsc --noEmit && npm run test && npm run build"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "builtin-modules": "^4.0.0",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.16.0",
+    "obsidian": "latest",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@xyflow/react": "^12.11.0",
+    "fflate": "^0.8.3",
+    "mammoth": "^1.12.0",
+    "pdfjs-dist": "^6.0.227",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "xlsx": "^0.18.5"
+  },
+  "packageManager": "pnpm@11.5.1+sha512.93f7b57422ea7068257235b4c16eb60762eb68e1dc23723199cc739043ea9be2c4143274a399d8c6defa2b1176226d9ca1c4b63482d6200c1a8fbaa78c1d1485"
+}

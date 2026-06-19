@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "ingest-single-file",
+  "name": "Ingest single file",
+  "description": "Extract and ingest one file from raw/{wikiId}/",
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger.manual",
+      "position": { "x": 0, "y": 0 },
+      "data": {}
+    },
+    {
+      "id": "pick",
+      "type": "file.pick",
+      "position": { "x": 200, "y": 0 },
+      "data": {}
+    },
+    {
+      "id": "extract",
+      "type": "doc.extract",
+      "position": { "x": 400, "y": 0 },
+      "data": {}
+    },
+    {
+      "id": "ingest",
+      "type": "wiki.ingest",
+      "position": { "x": 600, "y": 0 },
+      "data": { "wikiId": "{{wikiId}}" }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "from": "trigger", "to": "pick" },
+    { "id": "e2", "from": "pick", "to": "extract" },
+    { "id": "e3", "from": "extract", "to": "ingest", "toPort": "document" }
+  ],
+  "inputs": {
+    "path": { "type": "string", "required": true },
+    "wikiId": { "type": "string", "required": true }
+  },
+  "outputs": {
+    "report": { "type": "object" }
+  }
+}

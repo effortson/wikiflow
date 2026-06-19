@@ -1,0 +1,1285 @@
+/* Workflow editor — light design system (standalone reference) */
+
+.ef-workflow-editor {
+  --ef-bg: #f7f8fa;
+  --ef-surface: #ffffff;
+  --ef-surface-muted: #fcfcfd;
+  --ef-border: #e9ebef;
+  --ef-border-strong: #e3e5ea;
+  --ef-text: #1a1d23;
+  --ef-text-secondary: #454b54;
+  --ef-text-muted: #9aa0aa;
+  --ef-text-faint: #aab0b9;
+  --ef-primary: #6366f1;
+  --ef-primary-dark: #5b5bd6;
+  --ef-radius-sm: 6px;
+  --ef-radius-md: 10px;
+  --ef-radius-lg: 14px;
+  --ef-radius-xl: 15px;
+  --ef-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ef-mono: ui-monospace, "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--ef-bg);
+  color: var(--ef-text);
+  font-family: var(--ef-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.enterpriseflow-workflow-view,
+.enterpriseflow-workflow-mount,
+.ef-workflow-canvas,
+.ef-workflow-canvas .react-flow {
+  height: 100%;
+  min-height: 400px;
+}
+
+.ef-workflow-editor ::selection {
+  background: #ddddfb;
+}
+
+.ef-workflow-editor ::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.ef-workflow-editor ::-webkit-scrollbar-thumb {
+  background: #dadce2;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.ef-workflow-editor ::-webkit-scrollbar-thumb:hover {
+  background: #c4c8d0;
+  background-clip: content-box;
+}
+
+/* ===== Header ===== */
+.ef-workflow-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 58px;
+  padding: 0 18px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--ef-border);
+  z-index: 5;
+  flex: none;
+}
+
+.ef-workflow-header__logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
+}
+
+.ef-workflow-header__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.ef-workflow-header__name-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ef-workflow-header__name {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ef-text);
+  min-width: 120px;
+}
+
+.ef-workflow-header__name:focus {
+  outline: none;
+}
+
+.ef-workflow-header__name-row svg {
+  cursor: pointer;
+  flex: none;
+}
+
+.ef-workflow-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ef-workflow-header__path {
+  font-family: var(--ef-mono);
+  font-size: 11px;
+  color: var(--ef-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.ef-workflow-header__picker {
+  border: 1px solid var(--ef-border-strong);
+  border-radius: var(--ef-radius-sm);
+  background: var(--ef-surface);
+  font-size: 11px;
+  color: var(--ef-text-secondary);
+  padding: 2px 6px;
+  max-width: 120px;
+}
+
+.ef-workflow-header__spacer {
+  flex: 1;
+  min-width: 12px;
+}
+
+/* ===== User input modal ===== */
+.ef-user-input-modal__prompt {
+  margin: 0 0 12px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ef-user-input-modal__input {
+  width: 100%;
+  min-height: 96px;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.ef-user-input-modal__input:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+}
+
+.ef-user-input-modal__error {
+  min-height: 18px;
+  margin-bottom: 8px;
+  color: var(--text-error);
+  font-size: 12px;
+}
+
+.ef-workflow-header__status {
+  font-size: 12px;
+  color: var(--ef-text-muted);
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ef-workflow-header__status--running {
+  color: var(--ef-primary);
+}
+
+.ef-workflow-header__status--error {
+  color: #d14343;
+}
+
+.ef-workflow-header__status--info {
+  color: var(--ef-text-muted);
+}
+
+.ef-workflow-header__divider {
+  width: 1px;
+  height: 24px;
+  background: var(--ef-border);
+  margin: 0 3px;
+}
+
+.ef-workflow-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ef-validation-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px 5px 9px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.ef-validation-pill--valid {
+  background: #e9f8ef;
+  border: 1px solid #c4ecd4;
+  color: #0c8a55;
+}
+
+.ef-validation-pill--invalid {
+  background: #fdf2f3;
+  border: 1px solid #f3d2d6;
+  color: #dc4f5a;
+}
+
+.ef-validation-pill__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ef-validation-pill--valid .ef-validation-pill__dot {
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+}
+
+.ef-validation-pill--invalid .ef-validation-pill__dot {
+  background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* ===== Layout ===== */
+.ef-workflow-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.ef-workflow-canvas {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--ef-bg);
+  position: relative;
+}
+
+.ef-workflow-canvas__attribution {
+  position: absolute;
+  right: 14px;
+  bottom: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #bcc0c8;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.ef-workflow-sidebar {
+  width: 328px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+  padding: 18px 16px 24px;
+  background: var(--ef-surface-muted);
+  border-left: 1px solid var(--ef-border);
+}
+
+/* ===== Buttons ===== */
+.ef-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 9px;
+  border: 1px solid var(--ef-border-strong);
+  background: var(--ef-surface);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ef-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, filter 0.15s;
+}
+
+.ef-btn:hover {
+  background: #f5f6f8;
+  border-color: #d6d9df;
+}
+
+.ef-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ef-btn--primary {
+  height: 34px;
+  padding: 0 16px;
+  background: linear-gradient(135deg, #6366f1, #7c5cf5);
+  border-color: var(--ef-primary-dark);
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.ef-btn--primary:hover {
+  filter: brightness(1.06);
+  background: linear-gradient(135deg, #6366f1, #7c5cf5);
+  border-color: var(--ef-primary-dark);
+}
+
+.ef-btn--ghost {
+  background: var(--ef-surface);
+}
+
+.ef-btn--small {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.ef-btn--danger-block {
+  width: 100%;
+  height: 36px;
+  margin-top: 4px;
+  border-color: #f3d2d6;
+  color: #dc4f5a;
+  font-size: 12.5px;
+}
+
+.ef-btn--danger-block:hover {
+  background: #fdf2f3;
+  border-color: #f3d2d6;
+}
+
+/* ===== Palette ===== */
+.ef-palette {
+  width: 252px;
+  flex: none;
+  background: var(--ef-surface);
+  border-right: 1px solid var(--ef-border);
+  overflow-y: auto;
+  padding: 18px 14px 24px;
+}
+
+.ef-palette__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 12px 12px;
+}
+
+.ef-palette__title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.ef-palette__count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ef-text-muted);
+  background: #f3f4f6;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.ef-palette-group {
+  margin-bottom: 6px;
+}
+
+.ef-palette-group__title {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--ef-text-faint);
+  padding: 14px 10px 6px 12px;
+}
+
+.ef-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px 9px 12px;
+  border: none;
+  border-radius: var(--ef-radius-md);
+  background: transparent;
+  cursor: grab;
+  text-align: left;
+  font-family: inherit;
+}
+
+.ef-palette-item:hover {
+  background: #f6f7f9;
+}
+
+.ef-palette-item__icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: var(--ef-accent);
+}
+
+.ef-palette-item__icon svg {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  display: block;
+}
+
+.ef-palette-item__label {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #363b42;
+  line-height: 1.25;
+  text-align: left;
+}
+
+/* ===== Category themes ===== */
+.ef-node-cat--trigger {
+  --ef-accent: #e08a09;
+  --ef-accent-soft: #fdf0dd;
+}
+
+.ef-node-cat--wiki {
+  --ef-accent: #2f7df4;
+  --ef-accent-soft: #e7f0fe;
+}
+
+.ef-node-cat--flow {
+  --ef-accent: #7c3aed;
+  --ef-accent-soft: #ede9fe;
+}
+
+.ef-node-cat--llm {
+  --ef-accent: #e0479b;
+  --ef-accent-soft: #fce4ef;
+}
+
+.ef-node-cat--vault {
+  --ef-accent: #0d9488;
+  --ef-accent-soft: #d5f5f0;
+}
+
+.ef-node-cat--output {
+  --ef-accent: #0fa97b;
+  --ef-accent-soft: #d9f3ea;
+}
+
+/* ===== Canvas nodes ===== */
+.ef-workflow-node {
+  width: 224px;
+  min-height: 96px;
+  padding: 14px 15px;
+  border-radius: var(--ef-radius-xl);
+  border: 1px solid #eaecf0;
+  background: var(--ef-surface);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.07),
+    0 4px 12px rgba(16, 24, 40, 0.05);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.ef-workflow-node.is-selected {
+  border-color: transparent;
+  box-shadow:
+    0 0 0 2px var(--ef-accent),
+    0 14px 34px color-mix(in srgb, var(--ef-accent) 20%, transparent);
+}
+
+.ef-workflow-node.has-error {
+  border-color: #f3d2d6;
+}
+
+.ef-workflow-node__main {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.ef-workflow-node__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: none;
+  color: var(--ef-accent);
+}
+
+.ef-workflow-node__icon svg {
+  width: 19px;
+  height: 19px;
+  flex: none;
+  display: block;
+}
+
+.ef-workflow-node__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.ef-workflow-node__title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ef-workflow-node__subtitle {
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ef-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ef-workflow-node__footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ef-workflow-node__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8b919b;
+}
+
+.ef-workflow-node__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.ef-workflow-node__status--running {
+  color: #3b82f6;
+}
+
+.ef-workflow-node__status--running .ef-workflow-node__status-dot {
+  background: #3b82f6;
+  animation: ef-status-pulse 1s ease-in-out infinite;
+}
+
+.ef-workflow-node__status--done .ef-workflow-node__status-dot {
+  background: #10b981;
+}
+
+.ef-workflow-node__status--failed .ef-workflow-node__status-dot,
+.ef-workflow-node__status--error .ef-workflow-node__status-dot {
+  background: #ef4444;
+}
+
+.ef-workflow-node__status--failed,
+.ef-workflow-node__status--error {
+  color: #dc4f5a;
+}
+
+.ef-workflow-node__badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--ef-accent);
+  background: var(--ef-accent-soft);
+  padding: 2px 7px;
+  border-radius: var(--ef-radius-sm);
+}
+
+.ef-workflow-node__error {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: #ef4444;
+}
+
+/* Handles */
+.ef-handle {
+  width: 13px !important;
+  height: 13px !important;
+  border: 3px solid var(--ef-accent) !important;
+  background: var(--ef-surface) !important;
+  border-radius: 50% !important;
+}
+
+.ef-handle--target {
+  top: -7px !important;
+}
+
+.ef-handle--source {
+  bottom: -7px !important;
+  border-color: #7c5cf6 !important;
+}
+
+.ef-handle-label {
+  position: absolute;
+  bottom: -16px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--ef-text-muted);
+}
+
+.ef-handle-label--true {
+  left: 24%;
+}
+
+.ef-handle-label--false {
+  left: 64%;
+}
+
+/* ===== Run visuals ===== */
+.ef-workflow-canvas .react-flow__node:has(.is-run-running) {
+  z-index: 10 !important;
+}
+
+.ef-workflow-node.is-run-running {
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.2),
+    0 0 14px rgba(59, 130, 246, 0.14);
+  overflow: visible;
+}
+
+.ef-workflow-node__run-overlay {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.ef-workflow-node__run-svg {
+  display: block;
+  overflow: visible;
+}
+
+.ef-node-runner-dot {
+  fill: #3b82f6;
+  filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.95));
+}
+
+.ef-node-runner-dot--trail {
+  fill: #93c5fd;
+  filter: drop-shadow(0 0 3px rgba(147, 197, 253, 0.9));
+}
+
+.ef-workflow-node__main,
+.ef-workflow-node__footer {
+  position: relative;
+  z-index: 1;
+}
+
+.ef-workflow-node.is-run-completed.is-selected,
+.ef-workflow-node.is-run-completed {
+  border-color: #22c55e;
+  box-shadow:
+    0 0 0 2px rgba(34, 197, 94, 0.35),
+    0 8px 24px rgba(34, 197, 94, 0.12);
+}
+
+.ef-workflow-node.is-run-failed.is-selected,
+.ef-workflow-node.is-run-failed {
+  border-color: #ef4444;
+  box-shadow:
+    0 0 0 2px rgba(239, 68, 68, 0.3),
+    0 8px 24px rgba(239, 68, 68, 0.1);
+}
+
+.ef-edge-runner-dot {
+  fill: #3b82f6;
+  filter: drop-shadow(0 0 4px rgba(96, 165, 250, 0.95));
+}
+
+.ef-edge-runner-dot--secondary {
+  fill: #bfdbfe;
+  filter: drop-shadow(0 0 3px rgba(191, 219, 254, 0.9));
+}
+
+@keyframes ef-status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* React Flow chrome */
+.ef-workflow-canvas .react-flow__controls {
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-md);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.08);
+}
+
+.ef-workflow-canvas .react-flow__controls-button {
+  background: var(--ef-surface);
+  border-bottom-color: var(--ef-border);
+  fill: var(--ef-text-secondary);
+}
+
+.ef-workflow-canvas .react-flow__controls-button:hover {
+  background: #f5f6f8;
+}
+
+.ef-workflow-canvas .react-flow__minimap {
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-md);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.08);
+}
+
+.ef-workflow-canvas .react-flow__panel {
+  background: var(--ef-surface);
+}
+
+/* ===== Inspector ===== */
+.ef-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ef-inspector__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ef-primary-dark);
+}
+
+.ef-inspector__head span {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ef-text);
+}
+
+.ef-inspector-empty {
+  background: var(--ef-surface);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-lg);
+  padding: 26px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.ef-inspector-empty__icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: var(--ef-text-faint);
+}
+
+.ef-inspector-empty p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ef-text-muted);
+  line-height: 1.5;
+  max-width: 210px;
+}
+
+.ef-inspector-empty__title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ef-text-secondary);
+}
+
+.ef-inspector-card {
+  background: var(--ef-surface);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-lg);
+  padding: 15px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.ef-inspector-card__hero {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.ef-inspector-card__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--ef-accent);
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.ef-inspector-card__name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.ef-inspector-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 13px;
+  padding-top: 13px;
+  border-top: 1px solid #f0f1f4;
+  gap: 8px;
+}
+
+.ef-inspector-card__row-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ef-text-secondary);
+  flex: none;
+}
+
+.ef-inspector-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.ef-inspector-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background: var(--ef-surface);
+  border: 1px solid #e6e8ec;
+  border-radius: var(--ef-radius-md);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #5a606a;
+  cursor: pointer;
+}
+
+.ef-inspector-action:hover:not(:disabled) {
+  background: #f5f6f8;
+}
+
+.ef-inspector-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ef-inspector-action--danger {
+  border-color: #f3d2d6;
+  color: #dc4f5a;
+}
+
+.ef-inspector-action--danger:hover:not(:disabled) {
+  background: #fdf2f3;
+}
+
+.ef-inspector-card__badge {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ef-accent);
+  background: var(--ef-accent-soft);
+  padding: 2px 8px;
+  border-radius: var(--ef-radius-sm);
+}
+
+.ef-inspector-card__id {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--ef-text-muted);
+  font-family: var(--ef-mono);
+}
+
+.ef-inspector-card__row--id {
+  align-items: flex-start;
+}
+
+.ef-inspector-card__id-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ef-inspector-card__id-input {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--ef-border-strong);
+  border-radius: var(--ef-radius-sm);
+  background: var(--ef-surface);
+  color: var(--ef-text);
+  font-family: var(--ef-mono);
+  font-size: 12px;
+}
+
+.ef-inspector-card__id-input:focus {
+  outline: none;
+  border-color: var(--ef-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.ef-inspector-card__id-hint {
+  font-size: 10.5px;
+  color: var(--ef-text-faint);
+  line-height: 1.35;
+}
+
+.ef-inspector-card__id-hint code {
+  font-family: var(--ef-mono);
+  color: var(--ef-text-muted);
+}
+
+.ef-inspector-card__id-error {
+  font-size: 11px;
+  color: #d14343;
+  line-height: 1.35;
+}
+
+.ef-inspector-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--ef-text-faint);
+  padding: 0 2px;
+}
+
+.ef-muted {
+  opacity: 0.75;
+  font-size: 12px;
+  color: var(--ef-text-muted);
+}
+
+.ef-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 11px;
+  font-size: 12px;
+}
+
+.ef-field > span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  padding-left: 2px;
+}
+
+.ef-field input,
+.ef-field select,
+.ef-field textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #e6e8ec;
+  border-radius: var(--ef-radius-md);
+  background: var(--ef-surface);
+  font-size: 13px;
+  color: #363b42;
+  font-family: inherit;
+}
+
+.ef-field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.ef-inspector-errors {
+  color: #dc4f5a;
+  font-size: 12px;
+  margin: 8px 0;
+  padding: 8px 10px;
+  background: #fdf2f3;
+  border-radius: var(--ef-radius-md);
+  border: 1px solid #f3d2d6;
+}
+
+.ef-outputs-panel {
+  background: var(--ef-surface);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-lg);
+  padding: 12px 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.ef-outputs-panel h4 {
+  margin: 8px 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ef-text-faint);
+  text-transform: uppercase;
+}
+
+.ef-outputs-panel h4:first-child {
+  margin-top: 0;
+}
+
+.ef-outputs-list {
+  margin: 0;
+  padding-left: 1.1em;
+  font-size: 11px;
+}
+
+.ef-outputs-list code {
+  font-size: 10px;
+  font-family: var(--ef-mono);
+}
+
+.ef-run-io {
+  background: var(--ef-surface);
+  border: 1px solid var(--ef-border);
+  border-radius: var(--ef-radius-lg);
+  padding: 12px 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.ef-run-io h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ef-run-io--empty {
+  margin-top: 0;
+}
+
+.ef-run-io__badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.ef-run-io__badge--started {
+  background: rgba(59, 130, 246, 0.15);
+  color: #2563eb;
+}
+
+.ef-run-io__badge--completed {
+  background: rgba(16, 185, 129, 0.15);
+  color: #0c8a55;
+}
+
+.ef-run-io__badge--failed {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc4f5a;
+}
+
+.ef-io-block__json {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 10px;
+  line-height: 1.35;
+  max-height: 180px;
+  overflow: auto;
+  border-radius: var(--ef-radius-md);
+  border: 1px solid #e6e8ec;
+  background: #fafbfc;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--ef-mono);
+}
+
+/* ===== Run section ===== */
+.ef-run-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ef-run-section__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px 0;
+}
+
+.ef-run-section__head span {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ef-text);
+}
+
+.ef-run-empty {
+  background: var(--ef-surface);
+  border: 1px dashed #dadce2;
+  border-radius: var(--ef-radius-lg);
+  padding: 22px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 9px;
+}
+
+.ef-run-empty__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #7c5cf5;
+}
+
+.ef-run-empty__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ef-text-secondary);
+}
+
+.ef-run-empty__hint {
+  font-size: 12px;
+  color: var(--ef-text-muted);
+  line-height: 1.5;
+  max-width: 200px;
+}
+
+.ef-run-empty__accent {
+  font-weight: 700;
+  color: var(--ef-primary-dark);
+}
+
+.ef-run-tree {
+  font-size: 12px;
+}
+
+.ef-run-node {
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: var(--ef-radius-md);
+  background: #fafbfc;
+  border: 1px solid #f0f1f4;
+}
+
+.ef-run-node__header {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ef-run-status {
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.ef-run-status--completed {
+  background: #e9f8ef;
+  color: #0c8a55;
+}
+
+.ef-run-status--failed {
+  background: #fdf2f3;
+  color: #dc4f5a;
+}
+
+.ef-run-status--cancelled {
+  background: #fef9e7;
+  color: #b45309;
+}
+
+.ef-run-status--running {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+
+.ef-run-error {
+  color: #dc4f5a;
+  margin-top: 4px;
+  font-size: 11px;
+}
+
+/* ===== Status bar ===== */
+.ef-workflow-statusbar {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 16px;
+  background: var(--ef-surface);
+  border-top: 1px solid var(--ef-border);
+  font-size: 11.5px;
+  color: var(--ef-text-muted);
+  font-weight: 500;
+  flex: none;
+  gap: 10px;
+}
+
+.ef-workflow-statusbar__sep {
+  color: #dadce2;
+}
+
+.ef-workflow-statusbar__spacer {
+  flex: 1;
+}
+
+.ef-workflow-statusbar__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ef-workflow-statusbar__error {
+  color: #d14343;
+}
+

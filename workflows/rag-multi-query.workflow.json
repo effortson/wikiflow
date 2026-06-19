@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "rag-multi-query",
+  "name": "RAG multi-query",
+  "description": "User question → LLM expands to sub-queries → batch wiki search → LLM summarizes → output",
+  "nodes": [
+    {
+      "id": "input",
+      "type": "trigger.user-input",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "prompt": "请输入你的问题"
+      }
+    },
+    {
+      "id": "expand",
+      "type": "llm.chat",
+      "position": { "x": 220, "y": 0 },
+      "data": {
+        "system": "你是工业节能检索助手。根据用户问题，生成 3-5 条可用于知识库检索的短句，每行一句，不要编号，不要解释。用户问题：{{input.text}}",
+        "user": "请输出检索子问题，每行一句。"
+      }
+    },
+    {
+      "id": "batch",
+      "type": "wiki.query-batch",
+      "position": { "x": 440, "y": 0 },
+      "data": {
+        "wikiId": "{{wikiId}}",
+        "questions": "{{expand.text}}",
+        "maxQuestions": "5"
+      }
+    },
+    {
+      "id": "summarize",
+      "type": "llm.chat",
+      "position": { "x": 660, "y": 0 },
+      "data": {
+        "system": "你是工业节能顾问。根据用户原始问题和知识库检索结果，输出可执行的解决方案，条理清晰。用户问题：{{input.text}}",
+        "user": "{{batch.combined}}"
+      }
+    },
+    {
+      "id": "output",
+      "type": "output.text",
+      "position": { "x": 880, "y": 0 },
+      "data": {
+        "text": "{{summarize.text}}"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "from": "input", "to": "expand" },
+    { "id": "e2", "from": "expand", "to": "batch" },
+    { "id": "e3", "from": "batch", "to": "summarize" },
+    { "id": "e4", "from": "summarize", "to": "output" }
+  ]
+}

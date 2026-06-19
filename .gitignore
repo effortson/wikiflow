@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+main.js
+main.js.map
+pdf.worker.min.mjs
+*.hot-update.*
+
+# Obsidian plugin dev
+.DS_Store
+data.json
+
+# Environment
+.env
+.env.*

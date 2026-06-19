@@ -1,0 +1,9 @@
+{
+  "id": "enterpriseflow",
+  "name": "EnterpriseFlow",
+  "version": "0.1.0",
+  "minAppVersion": "1.11.0",
+  "description": "Document Wiki (multi-format ingest → knowledge graph) and visual workflow automation.",
+  "author": "effortson",
+  "isDesktopOnly": true
+}

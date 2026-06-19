@@ -1,0 +1,34 @@
+/* EnterpriseFlow plugin styles — expanded in later phases */
+
+.enterpriseflow-settings .setting-item-description {
+  font-size: 0.85em;
+}
+
+.enterpriseflow-ingest-notice {
+  border-left: 3px solid var(--interactive-accent);
+  font-weight: 500;
+}
+
+.enterpriseflow-ingest-notice--active::before {
+  content: "⟳ ";
+  display: inline-block;
+  animation: enterpriseflow-spin 1s linear infinite;
+}
+
+.enterpriseflow-ingest-status {
+  color: var(--interactive-accent);
+  font-weight: 500;
+  max-width: 45vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes enterpriseflow-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
