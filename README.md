@@ -58,7 +58,7 @@ ln -s /path/to/wikiflow "/path/to/VAULT/.obsidian/plugins/wikiflow"
 ## 快速开始
 
 1. 创建 Wiki：`mkdir -p raw/my-wiki` 并放入 PDF 等文件
-2. **命令面板** → `WikiFlow: Ingest active wiki`（或摄取单个文件）
+2. **命令面板** → `WikiFlow: Source → Wiki: active wiki (all files)`（或 `…: current file` 摄取单个文件）
 3. 点击功能区 **搜索图标** 打开 **Wiki 问答**，选择 Wiki 后提问
 
 ## Wiki 问答
@@ -90,13 +90,27 @@ Workflow 问答要求工作流：
 
 内置节点包括：`wiki.ingest`、`wiki.query`、`wiki.query-batch`、`llm.chat`、`workflow.subworkflow`、`trigger.file-added` 等。
 
+## 备份与恢复
+
+在 **设置 → WikiFlow** 中配置 S3 或 GitHub 远程，快照只打包 Vault 内的 WikiFlow 相关路径（可选含抽取缓存），并按快照自身的 exclude 规则筛选。
+
+恢复支持两种模式：
+
+| 模式 | 行为 |
+|------|------|
+| **Merge**（默认） | 仅当远程文件比本地更新时写入，不会覆盖本地的较新改动，也不删除本地多余文件 |
+| **Replace** | 以快照为准：覆盖差异文件，并删除快照范围内本地多出的文件（危险操作，先看预览） |
+
 ## 常用命令
 
-- `WikiFlow: Ingest active wiki` / `Ingest current file`
-- `WikiFlow: Open wiki query`
-- `WikiFlow: Open workflow canvas` / `Run workflow`
-- `WikiFlow: Lint active wiki` / `Regenerate query index`
-- `WikiFlow: Backup push` / `Backup restore`
+> 命令面板中均带 `WikiFlow:` 前缀（由 Obsidian 自动添加）。
+
+- `Source → Wiki: active wiki (all files)` / `Source → Wiki: current file` —— 摄取为 Wiki 页
+- `Raw → Source: active wiki (all files)` / `Raw → Source: current file` —— 仅抽取为中间 Markdown
+- `Open wiki Q&A panel` / `Wiki Q&A: active wiki`
+- `Open workflow canvas` / `Run workflow: current file` / `Validate workflow: current file`
+- `Lint wiki: active wiki` / `Rebuild search index: active wiki` / `Generate wiki schema: active wiki`
+- `Push backup to remote` / `Restore backup from remote`
 
 ## 开发
 

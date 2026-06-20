@@ -154,8 +154,9 @@ function applySummaryMerge(
   if (mode === "replace" || !trimmed) {
     return `\n${summary.trim()}\n\n${trimmed}\n`.replace(/\n{3,}/g, "\n\n");
   }
-  if (trimmed.startsWith(summary.trim())) return body;
-  return `\n${summary.trim()}\n\n${trimmed}\n`;
+  // fill-if-empty: the body already has content, so leave it untouched.
+  // (Prepending here would stack a fresh summary on every re-ingest.)
+  return body;
 }
 
 function unionStrings(a: unknown, b: unknown): string[] {

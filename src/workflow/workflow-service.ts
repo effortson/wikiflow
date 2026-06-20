@@ -102,126 +102,150 @@ export class EnterpriseWorkflowService implements WorkflowService {
       await this.acquireRootSlot();
     }
 
-    const runId = this.createRunId();
-    const parentActive = options.parentRunId
-      ? this.activeRuns.get(options.parentRunId)
-      : undefined;
-    const rootRunId = isRoot ? runId : (parentActive?.rootRunId ?? runId);
-
-    const controller = new AbortController();
-
-    if (parentActive) {
-      parentActive.childRunIds.add(runId);
-      const onParentAbort = () => controller.abort();
-      parentActive.controller.signal.addEventListener("abort", onParentAbort);
-      controller.signal.addEventListener("abort", () => {
-        parentActive.controller.signal.removeEventListener("abort", onParentAbort);
-      });
-    }
-
-    this.activeRuns.set(runId, {
-      controller,
-      rootRunId,
-      parentRunId: options.parentRunId,
-      childRunIds: new Set(),
-    });
-
-    if (isRoot) {
-      this.ctx.core.events.publish("workflow:started", {
-        runId,
-        workflowId: def.id,
-        rootRunId,
-      });
-      console.log(
-        `[WikiFlow:workflow] Run started ${def.id} (${runId})`,
-      );
-    }
-
-    const onStep = (step: WorkflowStepEvent) => {
-      logWorkflowStep(step);
-      this.ctx.core.events.publish("workflow:step", step);
-    };
-
-    const workflowCtx = createWorkflowContext({
-      runId,
-      rootRunId,
-      parentRunId: options.parentRunId,
-      depth,
-      workflowId: def.id,
-      inheritedVariables: options.inheritedVariables,
-      wikiId: inputs.wikiId as string | undefined,
-      signal: controller.signal,
-      services: this.services,
-      onStep,
-    });
-
-    const startedAt = new Date().toISOString();
-    let report: RunReport;
-
-    const handle = this.ctx.core.jobs.enqueue(
-      "workflow-run",
-      async (signal) => {
-        if (signal.aborted) throw new Error("Workflow run cancelled");
-
-        const { outputs, childRuns } = await executeWorkflow(
-          def,
-          workflowCtx,
-          this.registry,
-          {
-            initialVariables: { ...inputs, ...options.inheritedVariables },
-            skipTriggers: depth > 0,
-          },
-        );
-
-        return { outputs, childRuns };
-      },
-      {
-        rootRunId,
-        parentJobId: options.parentRunId,
-        wikiId: inputs.wikiId as string | undefined,
-      },
-    );
-
-    controller.signal.addEventListener("abort", () => handle.cancel());
-
-    const active = this.activeRuns.get(runId);
-    if (active) {
-      active.cancelJob = () => handle.cancel();
-    }
-
+    // The root concurrency slot is acquired above; everything below is wrapped
+    // so the slot (and the activeRuns entry) is always released, even if setup
+    // throws before the run's own try/finally is reached.
+    let runId: string | undefined;
     try {
-      const result = await handle.result;
-      report = {
+      runId = this.createRunId();
+      const parentActive = options.parentRunId
+        ? this.activeRuns.get(options.parentRunId)
+        : undefined;
+      const rootRunId = isRoot ? runId : (parentActive?.rootRunId ?? runId);
+
+      const controller = new AbortController();
+
+      if (parentActive) {
+        parentActive.childRunIds.add(runId);
+        const onParentAbort = () => controller.abort();
+        parentActive.controller.signal.addEventListener("abort", onParentAbort);
+        controller.signal.addEventListener("abort", () => {
+          parentActive.controller.signal.removeEventListener("abort", onParentAbort);
+        });
+      }
+
+      this.activeRuns.set(runId, {
+        controller,
+        rootRunId,
+        parentRunId: options.parentRunId,
+        childRunIds: new Set(),
+      });
+
+      if (isRoot) {
+        this.ctx.core.events.publish("workflow:started", {
+          runId,
+          workflowId: def.id,
+          rootRunId,
+        });
+        console.log(
+          `[WikiFlow:workflow] Run started ${def.id} (${runId})`,
+        );
+      }
+
+      const onStep = (step: WorkflowStepEvent) => {
+        logWorkflowStep(step);
+        this.ctx.core.events.publish("workflow:step", step);
+      };
+
+      const workflowCtx = createWorkflowContext({
         runId,
         rootRunId,
         parentRunId: options.parentRunId,
         depth,
         workflowId: def.id,
-        status: "completed",
-        childRuns: result.childRuns,
-        outputs: result.outputs,
-        startedAt,
-        finishedAt: new Date().toISOString(),
-      };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      const cancelled =
-        controller.signal.aborted ||
-        handle.job.status === "cancelled" ||
-        message.toLowerCase().includes("cancelled");
-      report = {
-        runId,
-        rootRunId,
-        parentRunId: options.parentRunId,
-        depth,
-        workflowId: def.id,
-        status: cancelled ? "cancelled" : "failed",
-        error: err instanceof Error ? err.message : String(err),
-        startedAt,
-        finishedAt: new Date().toISOString(),
-      };
+        inheritedVariables: options.inheritedVariables,
+        wikiId: inputs.wikiId as string | undefined,
+        signal: controller.signal,
+        services: this.services,
+        onStep,
+      });
+
+      const startedAt = new Date().toISOString();
+      let report: RunReport;
+
+      const handle = this.ctx.core.jobs.enqueue(
+        "workflow-run",
+        async (signal) => {
+          if (signal.aborted) throw new Error("Workflow run cancelled");
+
+          const { outputs, childRuns } = await executeWorkflow(
+            def,
+            workflowCtx,
+            this.registry,
+            {
+              initialVariables: { ...inputs, ...options.inheritedVariables },
+              skipTriggers: depth > 0,
+            },
+          );
+
+          return { outputs, childRuns };
+        },
+        {
+          rootRunId,
+          parentJobId: options.parentRunId,
+          wikiId: inputs.wikiId as string | undefined,
+        },
+      );
+
+      controller.signal.addEventListener("abort", () => handle.cancel());
+
+      const active = this.activeRuns.get(runId);
+      if (active) {
+        active.cancelJob = () => handle.cancel();
+      }
+
+      try {
+        const result = await handle.result;
+        report = {
+          runId,
+          rootRunId,
+          parentRunId: options.parentRunId,
+          depth,
+          workflowId: def.id,
+          status: "completed",
+          childRuns: result.childRuns,
+          outputs: result.outputs,
+          startedAt,
+          finishedAt: new Date().toISOString(),
+        };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        const cancelled =
+          controller.signal.aborted ||
+          handle.job.status === "cancelled" ||
+          message.toLowerCase().includes("cancelled");
+        report = {
+          runId,
+          rootRunId,
+          parentRunId: options.parentRunId,
+          depth,
+          workflowId: def.id,
+          status: cancelled ? "cancelled" : "failed",
+          error: err instanceof Error ? err.message : String(err),
+          startedAt,
+          finishedAt: new Date().toISOString(),
+        };
+      }
+
+      await this.runStore.saveReport(report);
+
+      if (isRoot) {
+        this.ctx.core.events.publish("workflow:done", report);
+        console.log(
+          `[WikiFlow:workflow] Run ${report.status} ${def.id} (${runId})`,
+          report.error ? { error: report.error } : { outputs: report.outputs },
+        );
+      } else if (options.parentRunId) {
+        this.ctx.core.events.publish("workflow:child-done", {
+          rootRunId,
+          parentRunId: options.parentRunId,
+          report,
+        });
+      }
+
+      return report;
     } finally {
-      this.activeRuns.delete(runId);
+      if (runId) this.activeRuns.delete(runId);
       if (isRoot) {
         this.releaseRootSlot();
         void cleanupWorkflowRuns(
@@ -231,31 +255,13 @@ export class EnterpriseWorkflowService implements WorkflowService {
         );
       }
     }
-
-    await this.runStore.saveReport(report);
-
-    if (isRoot) {
-      this.ctx.core.events.publish("workflow:done", report);
-      console.log(
-        `[WikiFlow:workflow] Run ${report.status} ${def.id} (${runId})`,
-        report.error ? { error: report.error } : { outputs: report.outputs },
-      );
-    } else if (options.parentRunId) {
-      this.ctx.core.events.publish("workflow:child-done", {
-        rootRunId,
-        parentRunId: options.parentRunId,
-        report,
-      });
-    }
-
-    return report;
   }
 
   cancel(runId: string): boolean {
     const resolved = this.resolveActiveRunEntry(runId);
     if (!resolved) return false;
 
-    const { id, active } = resolved;
+    const { active } = resolved;
     active.controller.abort();
     active.cancelJob?.();
     for (const childId of active.childRunIds) {
@@ -270,12 +276,8 @@ export class EnterpriseWorkflowService implements WorkflowService {
     const direct = this.activeRuns.get(runId);
     if (direct) return { id: runId, active: direct };
 
-    for (const [id, active] of this.activeRuns) {
-      if (id === active.rootRunId && active.rootRunId === runId) {
-        return { id, active };
-      }
-    }
-
+    // Resolve by rootRunId (e.g. cancelling a root cancels its tree). The
+    // exact-key case is already covered by the direct lookup above.
     for (const [id, active] of this.activeRuns) {
       if (active.rootRunId === runId) {
         return { id, active };

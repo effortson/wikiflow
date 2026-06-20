@@ -71,10 +71,55 @@ function extractBalancedObject(raw: string): string | null {
 export function repairJsonCommonIssues(text: string): string {
   let s = text.trim();
   s = s.replace(/^\uFEFF/, "");
-  s = s.replace(/\/\/.*$/gm, "");
-  s = s.replace(/\/\*[\s\S]*?\*\//g, "");
+  s = stripJsonComments(s);
   s = s.replace(/[\u201c\u201d]/g, '"');
   s = s.replace(/,\s*([}\]])/g, "$1");
   s = s.replace(/([{,]\s*)([A-Za-z_][A-Za-z0-9_]*)\s*:/g, '$1"$2":');
   return s.trim();
+}
+
+/**
+ * Remove `//` line comments and block comments, but only outside string
+ * literals \u2014 a naive regex would corrupt values like "https://example.com".
+ */
+function stripJsonComments(text: string): string {
+  let out = "";
+  let inString = false;
+  let escape = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+
+    if (inString) {
+      out += ch;
+      if (escape) escape = false;
+      else if (ch === "\\") escape = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = true;
+      out += ch;
+      continue;
+    }
+
+    if (ch === "/" && text[i + 1] === "/") {
+      i += 2;
+      while (i < text.length && text[i] !== "\n") i++;
+      i--; // let the loop re-handle the newline (or end)
+      continue;
+    }
+
+    if (ch === "/" && text[i + 1] === "*") {
+      i += 2;
+      while (i < text.length && !(text[i] === "*" && text[i + 1] === "/")) i++;
+      i++; // skip past the closing '*' ; the loop's i++ skips the '/'
+      continue;
+    }
+
+    out += ch;
+  }
+
+  return out;
 }

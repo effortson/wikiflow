@@ -170,9 +170,9 @@ function compareBranchValues(
 
   switch (operator) {
     case "eq":
-      return l === r;
+      return looseScalarEquals(l, r);
     case "neq":
-      return l !== r;
+      return !looseScalarEquals(l, r);
     case "gt":
       return l > r;
     case "gte":
@@ -184,4 +184,18 @@ function compareBranchValues(
     default:
       return false;
   }
+}
+
+/**
+ * Equality that treats a number and its string form as equal (e.g. 5 and "5").
+ * Branch `right` operands are authored as strings in the UI, while a templated
+ * `left` resolves to its raw type, so strict === would wrongly fail numeric
+ * comparisons. Ordering operators already coerce via JS `<`/`>`.
+ */
+function looseScalarEquals(
+  l: string | number | boolean,
+  r: string | number | boolean,
+): boolean {
+  if (typeof l === typeof r) return l === r;
+  return String(l) === String(r);
 }

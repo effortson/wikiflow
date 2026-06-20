@@ -52,8 +52,9 @@ export function createTranslator(langCode?: string) {
     locale,
     messages,
     command(name: keyof CommandMessages): string {
-      const m = messages();
-      return `${m.pluginName}: ${m.commands[name]}`;
+      // Obsidian already prefixes command palette entries with the plugin
+      // name, so the bare command name avoids a doubled "WikiFlow: WikiFlow:".
+      return messages().commands[name];
     },
     notice(
       name: keyof NoticeMessages,

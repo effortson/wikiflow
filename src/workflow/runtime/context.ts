@@ -54,7 +54,9 @@ export function createWorkflowContext(
     }
   }
 
-  const callStack = options.callStack ?? [];
+  // Copy the parent's call stack before pushing — mutating the shared array
+  // would contaminate sibling subworkflow invocations and trigger false cycles.
+  const callStack = [...(options.callStack ?? [])];
   if (!callStack.includes(options.workflowId)) {
     callStack.push(options.workflowId);
   }

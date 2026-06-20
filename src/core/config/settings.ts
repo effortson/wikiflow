@@ -108,12 +108,12 @@ function mergeBackupSettings(
 
   const scope =
     "scope" in loaded && loaded.scope
-      ? loaded.scope === "enterpriseflow"
+      ? (loaded.scope as string) === "enterpriseflow"
         ? "wikiflow"
         : loaded.scope
       : DEFAULT_BACKUP_COMMON.scope;
   const common = {
-    scope: scope as BackupSettings["scope"],
+    scope: scope as typeof DEFAULT_BACKUP_COMMON.scope,
     includeExtractCache:
       "includeExtractCache" in loaded
         ? Boolean(loaded.includeExtractCache)
@@ -127,11 +127,13 @@ function mergeBackupSettings(
         ? Boolean(loaded.scheduleEnabled)
         : DEFAULT_BACKUP_COMMON.scheduleEnabled,
     scheduleIntervalHours:
-      "scheduleIntervalHours" in loaded && loaded.scheduleIntervalHours
+      "scheduleIntervalHours" in loaded &&
+      typeof loaded.scheduleIntervalHours === "number"
         ? loaded.scheduleIntervalHours
         : DEFAULT_BACKUP_COMMON.scheduleIntervalHours,
     retentionCount:
-      "retentionCount" in loaded && loaded.retentionCount
+      "retentionCount" in loaded &&
+      typeof loaded.retentionCount === "number"
         ? loaded.retentionCount
         : DEFAULT_BACKUP_COMMON.retentionCount,
   };

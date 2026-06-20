@@ -63,8 +63,13 @@ export async function planRestore(
     const localHash = await hashVaultFile(existing, vault);
     const localModifiedAt = await fileModifiedAtIso(existing);
 
+    // Replace mode treats the snapshot as authoritative. Merge mode only takes
+    // the snapshot's copy when it is strictly newer, so it never clobbers a
+    // local edit made after the snapshot was captured.
     const shouldUpdate =
-      localHash !== entry.contentHash || entry.modifiedAt > localModifiedAt;
+      mode === "replace"
+        ? localHash !== entry.contentHash
+        : localHash !== entry.contentHash && entry.modifiedAt > localModifiedAt;
 
     if (shouldUpdate) {
       pathsToWrite.push({ path: safePath, data });
@@ -84,6 +89,10 @@ export async function planRestore(
       ...scopeOptions,
       scope: manifest.scope,
       includeExtractCache: manifest.includeExtractCache,
+      // Delete-candidate scope must match the snapshot's own exclusions, or
+      // replace mode would delete files that were deliberately excluded from
+      // the backup (and are therefore not in snapshotPaths).
+      excludePatterns: manifest.excludes ?? scopeOptions.excludePatterns,
     });
 
     for (const file of localScoped) {

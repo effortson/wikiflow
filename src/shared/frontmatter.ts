@@ -73,7 +73,12 @@ function parseScalar(raw: string): unknown {
   ) {
     return raw.slice(1, -1);
   }
-  if (/^-?\d+$/.test(raw)) return Number(raw);
+  // Only coerce when the number round-trips exactly, so zero-padded ids
+  // ("007") and integers beyond Number precision keep their string form.
+  if (/^-?\d+$/.test(raw)) {
+    const num = Number(raw);
+    if (String(num) === raw) return num;
+  }
   return raw;
 }
 

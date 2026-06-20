@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveTemplate, TemplateResolutionError } from "../src/workflow/runtime/template";
+import { resolveTemplate } from "../src/workflow/runtime/template";
 
 describe("workflow template", () => {
   it("resolves whole-string variable reference", () => {

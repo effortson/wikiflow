@@ -45,15 +45,24 @@ export class XlsxSheetjsExtractor implements DocumentExtractor {
     const mdParts: string[] = [];
     let sequence = 0;
     let rowCount = 0;
+    let truncated = false;
 
     for (const sheet of sheetNames) {
       const ws = workbook.Sheets[sheet];
       if (!ws) continue;
+      if (rowCount >= MAX_XLSX_ROWS) {
+        truncated = true;
+        break;
+      }
       const csv = XLSX.utils.sheet_to_csv(ws);
-      const rows = csv.split("\n").filter((l) => l.trim());
+      let rows = csv.split("\n").filter((l) => l.trim());
+      if (rowCount + rows.length > MAX_XLSX_ROWS) {
+        rows = rows.slice(0, MAX_XLSX_ROWS - rowCount);
+        truncated = true;
+      }
       rowCount += rows.length;
       sequence++;
-      const text = `## Sheet: ${sheet}\n\n${csv}`;
+      const text = `## Sheet: ${sheet}\n\n${rows.join("\n")}`;
       mdParts.push(text);
       chunks.push({
         id: `chunk-${String(sequence).padStart(3, "0")}`,
@@ -61,16 +70,17 @@ export class XlsxSheetjsExtractor implements DocumentExtractor {
         locator: { kind: "xlsx", sheet, range: ws["!ref"] },
         sequence,
       });
+      if (truncated) break;
     }
 
     const fullText = mdParts.join("\n\n");
     const warnings: ExtractWarning[] = isEffectivelyEmpty(fullText)
       ? [emptyTextWarning()]
       : [];
-    if (rowCount > MAX_XLSX_ROWS) {
+    if (truncated) {
       warnings.push({
         code: "truncated",
-        message: `Spreadsheet truncated: ${rowCount} rows exceeds limit of ${MAX_XLSX_ROWS}`,
+        message: `Spreadsheet truncated to ${MAX_XLSX_ROWS} rows`,
       });
     }
 

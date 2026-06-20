@@ -39,6 +39,10 @@ export async function queryWikiAnswersBatch(
         const answer = await queryWikiAnswer(wiki, wikiId, question, signal);
         return { question, answer };
       } catch (err) {
+        // Propagate cancellation so the batch fails/cancels instead of
+        // returning the cancellation message as if it were an answer. Genuine
+        // per-question errors are still surfaced inline for batch resilience.
+        if (signal.aborted) throw err;
         return {
           question,
           answer: err instanceof Error ? err.message : String(err),

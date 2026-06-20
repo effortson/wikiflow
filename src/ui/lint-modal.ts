@@ -1,7 +1,7 @@
 import type { WikiFlowPlugin } from "../main";
 import type { WikiId } from "@shared/types/wiki-instance";
 import type { LintReport } from "@shared/types/wiki";
-import { App, Modal, Setting } from "obsidian";
+import { App, Modal, Notice, Setting } from "obsidian";
 
 export class LintModal extends Modal {
   constructor(
@@ -82,7 +82,11 @@ export class LintModal extends Modal {
     if (await vault.exists(logPath)) {
       const existing = await vault.readText(logPath);
       await vault.writeText(logPath, `${existing.trimEnd()}\n${line}`);
+    } else {
+      // Create the log on first append instead of silently doing nothing.
+      await vault.writeText(logPath, line);
     }
+    new Notice("Lint summary appended to log.md");
   }
 }
 

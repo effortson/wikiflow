@@ -14,7 +14,9 @@ export interface SnapshotBuildResult {
 }
 
 export function createSnapshotId(date = new Date()): string {
-  return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  // Millisecond precision so two snapshots in the same second don't collide
+  // and silently overwrite each other.
+  return date.toISOString().replace(/[-:.]/g, "");
 }
 
 export async function buildSnapshot(
@@ -63,15 +65,14 @@ export async function buildSnapshot(
     files: entries,
   };
 
-  const manifestWithoutHash = { ...manifest, contentHash: "" };
-  zipEntries["manifest.json"] = strToU8(
-    JSON.stringify(manifestWithoutHash, null, 2),
-  );
-
-  let zipBytes = zipSync(zipEntries, { level: 6 });
-  manifest.contentHash = await sha256Hex(zipBytes);
+  // contentHash is a deterministic digest of the manifest, which transitively
+  // covers every file via its per-file contentHash. Hashing the zip bytes is
+  // NOT reproducible: fflate stamps each entry's mtime with the build time, so
+  // verifySnapshotIntegrity could never rebuild the same bytes on a later
+  // restore (the check would always fail).
+  manifest.contentHash = await hashManifestContent(manifest);
   zipEntries["manifest.json"] = strToU8(JSON.stringify(manifest, null, 2));
-  zipBytes = zipSync(zipEntries, { level: 6 });
+  const zipBytes = zipSync(zipEntries, { level: 6 });
 
   return {
     snapshotId,
@@ -123,18 +124,9 @@ export async function verifySnapshotIntegrity(
   const parsed = parseSnapshotZip(zipBytes);
 
   if (parsed.manifest.contentHash) {
-    const zipEntries: Record<string, Uint8Array> = {
-      "manifest.json": strToU8(
-        JSON.stringify({ ...parsed.manifest, contentHash: "" }, null, 2),
-      ),
-    };
-    for (const [path, data] of parsed.files) {
-      zipEntries[path] = data;
-    }
-    const rebuilt = zipSync(zipEntries, { level: 6 });
-    const expected = await sha256Hex(rebuilt);
+    const expected = await hashManifestContent(parsed.manifest);
     if (parsed.manifest.contentHash !== expected) {
-      throw new Error("Snapshot zip contentHash mismatch");
+      throw new Error("Snapshot manifest contentHash mismatch");
     }
   }
 

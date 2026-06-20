@@ -4,7 +4,7 @@ import type { PluginSettings } from "../core/config/settings";
 import type { WikiService } from "../wiki/service";
 import type { WorkflowService } from "@shared/types/workflow";
 import type { VaultAdapter } from "../core/vault/vault-adapter";
-import { EnterpriseWorkflowService, type WorkflowServiceContext } from "./workflow-service";
+import { EnterpriseWorkflowService } from "./workflow-service";
 
 import { normalizeWorkflowDefinition } from "./schema/normalize-workflow";
 

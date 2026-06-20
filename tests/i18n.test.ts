@@ -19,9 +19,9 @@ describe("i18n", () => {
 
   it("formats command names and notices", () => {
     const tr = createTranslator("zh-CN");
-    expect(tr.command("ingestCurrentFile")).toBe(
-      "WikiFlow: Source → Wiki：当前文件",
-    );
+    // Bare command name — Obsidian prepends the plugin name itself, so the
+    // translator must not add its own "WikiFlow:" prefix (would double up).
+    expect(tr.command("ingestCurrentFile")).toBe("Source → Wiki：当前文件");
     expect(tr.notice("ingestingFile", { name: "a.pdf" })).toBe(
       "正在摄取 a.pdf…",
     );

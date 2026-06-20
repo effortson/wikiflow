@@ -37,33 +37,47 @@ function assertNotAborted(signal: AbortSignal): void {
   }
 }
 
-function isPredecessorSatisfied(
+type NodeReadiness = "run" | "skip" | "wait";
+
+/**
+ * Classify a node against its (already-processed) predecessors.
+ *
+ * A predecessor edge is "dead" when its source was skipped or when the source
+ * is a branch.if whose taken port differs from the edge's port. A node runs
+ * when at least one incoming edge is live; if every incoming edge is dead the
+ * node is itself skipped (pruned). This makes branch reconvergence (a node fed
+ * by both the true and false ports, or by one branch port plus another path)
+ * execute on the live path instead of being silently dropped.
+ */
+function classifyNode(
   graph: WorkflowGraph,
   nodeId: string,
   executed: Set<string>,
+  skipped: Set<string>,
   branchResults: Map<string, boolean>,
   skipTriggers: boolean,
-): boolean {
-  const incoming = graph.incoming.get(nodeId) ?? [];
-  if (incoming.length === 0) return true;
-
-  for (const edge of incoming) {
+): NodeReadiness {
+  const incoming = (graph.incoming.get(nodeId) ?? []).filter((edge) => {
     const fromNode = graph.nodes.get(edge.from);
-    if (skipTriggers && fromNode && isTriggerNode(fromNode.type)) {
-      continue;
-    }
+    return !(skipTriggers && fromNode && isTriggerNode(fromNode.type));
+  });
+  if (incoming.length === 0) return "run";
 
-    if (!executed.has(edge.from)) return false;
+  let hasLive = false;
+  for (const edge of incoming) {
+    if (skipped.has(edge.from)) continue; // pruned path
+    if (!executed.has(edge.from)) return "wait"; // predecessor not yet resolved
 
+    const fromNode = graph.nodes.get(edge.from);
     if (fromNode?.type === "branch.if") {
       const result = branchResults.get(edge.from);
       const port = edge.fromPort ?? "true";
-      const expected = port === "true";
-      if (result !== expected) return false;
+      if (result !== (port === "true")) continue; // branch not taken on this edge
     }
+    hasLive = true;
   }
 
-  return true;
+  return hasLive ? "run" : "skip";
 }
 
 function gatherNodeInputs(
@@ -115,6 +129,7 @@ export async function executeWorkflow(
   }
 
   const executed = new Set<string>();
+  const skipped = new Set<string>();
   const branchResults = new Map<string, boolean>();
   const nodeOutputs = new Map<string, Record<string, unknown>>();
   const childRuns: RunReport[] = [];
@@ -138,7 +153,18 @@ export async function executeWorkflow(
       continue;
     }
 
-    if (!isPredecessorSatisfied(graph, nodeId, executed, branchResults, Boolean(options.skipTriggers))) {
+    const readiness = classifyNode(
+      graph,
+      nodeId,
+      executed,
+      skipped,
+      branchResults,
+      Boolean(options.skipTriggers),
+    );
+    if (readiness !== "run") {
+      // "skip": all incoming paths are dead. "wait": a predecessor was never
+      // processed (only reachable via a dropped/cyclic edge) — prune defensively.
+      skipped.add(nodeId);
       continue;
     }
 
@@ -216,11 +242,14 @@ export async function executeWorkflow(
     }
   }
 
-  const unexecuted = [...graph.nodes.keys()].filter((id) => !executed.has(id));
-  const required = unexecuted.filter((id) => {
+  // Every node in topological order is now either executed or pruned (skipped).
+  // Anything left over was never reached even by a dropped edge — a genuinely
+  // blocked node, which is an error.
+  const required = [...graph.nodes.keys()].filter((id) => {
+    if (executed.has(id) || skipped.has(id)) return false;
     const node = graph.nodes.get(id)!;
     if (options.skipTriggers && isTriggerNode(node.type)) return false;
-    return isReachable(graph, id, executed, branchResults, Boolean(options.skipTriggers));
+    return true;
   });
 
   if (required.length > 0) {
@@ -233,23 +262,6 @@ export async function executeWorkflow(
     outputs: variablesToRecord(ctx.variables),
     childRuns,
   };
-}
-
-function isReachable(
-  graph: WorkflowGraph,
-  nodeId: string,
-  executed: Set<string>,
-  branchResults: Map<string, boolean>,
-  skipTriggers: boolean,
-): boolean {
-  if (executed.has(nodeId)) return false;
-  return isPredecessorSatisfied(
-    graph,
-    nodeId,
-    executed,
-    branchResults,
-    skipTriggers,
-  );
 }
 
 export function outgoingBranchEdges(

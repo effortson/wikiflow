@@ -34,7 +34,7 @@ export function RunTreePanel({ report, onCancel }: RunTreePanelProps) {
 
 function renderRunNode(
   report: RunReport,
-  onCancel?: (runId: string) => void,
+  onCancel?: () => void,
   depth = 0,
 ): ReactElement {
   const statusClass = `ef-run-status ef-run-status--${report.status}`;

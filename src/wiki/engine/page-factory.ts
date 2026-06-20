@@ -190,7 +190,10 @@ export class PageFactory {
     const merged = mergeWikiPage({
       existingContent: existing,
       incomingFrontmatter: fm,
-      incomingBody: `\n# ${name}\n\n${summary}\n${tableSection}`,
+      // Summary is supplied via incomingSummary; the merge layer places it at
+      // the top of the page. Don't embed it in the body too, or every new
+      // entity/concept page would render the summary twice.
+      incomingBody: `\n# ${name}\n${tableSection}`,
       incomingMentionsBlock: mentionsBlock,
       incomingSummary: summary,
       mergePolicy,

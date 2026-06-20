@@ -173,7 +173,16 @@ export class GitHubBackupProvider implements BackupRemoteProvider {
   }
 
   private async listDirectory(path: string): Promise<GitHubContentResponse[]> {
-    const result = await this.api("GET", path);
+    let result: unknown;
+    try {
+      result = await this.api("GET", path);
+    } catch (err) {
+      // A missing directory (e.g. no snapshots yet on a fresh repo) returns
+      // 404 — treat it as an empty listing, mirroring the S3 provider, instead
+      // of propagating an error that breaks restore/retention.
+      if (err instanceof Error && /failed \(404\)/.test(err.message)) return [];
+      throw err;
+    }
     if (!Array.isArray(result)) return [];
     return result as GitHubContentResponse[];
   }

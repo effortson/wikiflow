@@ -169,7 +169,10 @@ export class QueryEngine {
       const raw = await this.core.vault.readText(path);
       const { body } = parseMarkdown(raw);
       const pageTokens = estimateTokens(body);
-      if (tokens + pageTokens > maxContextTokens) break;
+      // Always include the most relevant page even if it alone exceeds the
+      // budget — otherwise a single large page makes the query falsely report
+      // "no relevant pages". Subsequent, less-relevant pages still respect it.
+      if (loaded.length > 0 && tokens + pageTokens > maxContextTokens) break;
       tokens += pageTokens;
       const title = path.split("/").pop()?.replace(/\.md$/, "") ?? path;
       loaded.push({ path, title, body: body.trim() });

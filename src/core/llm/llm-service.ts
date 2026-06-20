@@ -95,7 +95,7 @@ export class OpenAICompatibleLLMService implements LLMService {
       );
     }
 
-    const json = response.json as {
+    let json: {
       choices?: {
         message?: {
           content?: string | null;
@@ -103,6 +103,11 @@ export class OpenAICompatibleLLMService implements LLMService {
         };
       }[];
     };
+    try {
+      json = response.json;
+    } catch {
+      throw new Error("LLM response was not valid JSON");
+    }
     const content = extractAssistantText(json.choices?.[0]?.message);
     if (content == null) {
       throw new Error("LLM response missing content");
@@ -165,7 +170,7 @@ export class OpenAICompatibleLLMService implements LLMService {
       );
     }
 
-    const json = response.json as {
+    let json: {
       choices?: {
         message?: {
           content?: string | null;
@@ -173,6 +178,11 @@ export class OpenAICompatibleLLMService implements LLMService {
         };
       }[];
     };
+    try {
+      json = response.json;
+    } catch {
+      throw new Error("LLM response was not valid JSON");
+    }
     const content = extractAssistantText(json.choices?.[0]?.message);
     if (content == null) {
       throw new Error("LLM vision response missing content");
@@ -223,7 +233,7 @@ export class OpenAICompatibleLLMService implements LLMService {
       );
     }
 
-    const json = response.json as {
+    let json: {
       choices?: {
         message?: {
           content?: string | null;
@@ -231,6 +241,11 @@ export class OpenAICompatibleLLMService implements LLMService {
         };
       }[];
     };
+    try {
+      json = response.json;
+    } catch {
+      throw new Error("LLM response was not valid JSON");
+    }
     const content = extractAssistantText(json.choices?.[0]?.message);
     if (content == null) {
       throw new Error("LLM test response missing content");
@@ -250,8 +265,9 @@ function extractAssistantText(
   if (!message) return null;
   const content = message.content?.trim();
   if (content) return content;
-  const reasoning = message.reasoning_content?.trim();
-  if (reasoning) return reasoning;
+  // Do NOT fall back to reasoning_content: that is the model's internal
+  // chain-of-thought, not its answer. Returning null surfaces an honest
+  // "missing content" error instead of storing raw reasoning as the result.
   return null;
 }
 
