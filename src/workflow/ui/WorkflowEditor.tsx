@@ -527,22 +527,6 @@ function WorkflowEditorInner({ deps, activePath }: WorkflowEditorProps) {
           </div>
           <div className="ef-workflow-header__meta">
             <span className="ef-workflow-header__path">{displayPath}</span>
-            <select
-              className="ef-workflow-header__picker"
-              value={filePath ?? ""}
-              onChange={(e) => {
-                const path = e.target.value;
-                if (path) void loadWorkflow(path);
-              }}
-              aria-label="Open workflow"
-            >
-              <option value="">Open…</option>
-              {workflowFiles.map((path) => (
-                <option key={path} value={path}>
-                  {path}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
 
