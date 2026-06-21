@@ -1,60 +1,578 @@
 .wikiflow-query-view {
-  display: flex;
-  flex-direction: column;
+  --wq-accent: #7c5cf5;
+  --wq-accent-2: #6366f1;
+  --wq-accent-soft: rgba(124, 92, 245, 0.12);
+  --wq-accent-border: rgba(124, 92, 245, 0.32);
+  --wq-radius: 14px;
+  --wq-radius-sm: 10px;
+  --wq-field-h: 38px;
+  position: relative;
   height: 100%;
-  padding: 12px;
-  gap: 12px;
-  overflow: hidden;
-}
-
-.wikiflow-query-view .wikiflow-query-toolbar {
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  overflow: hidden;
+  background: var(--background-secondary);
 }
 
-.wikiflow-query-toolbar__row {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 0.75fr) minmax(0, 1.4fr);
-  gap: 12px;
-  align-items: start;
-}
-
-.wikiflow-query-toolbar__row .setting-item {
-  border-top: none;
-  padding: 0;
-  margin: 0;
-}
-
-.wikiflow-query-toolbar__row .setting-item-info {
-  width: auto;
-  min-width: 0;
-}
-
-.wikiflow-query-toolbar__row .setting-item-control {
-  min-width: 0;
-}
-
-.wikiflow-query-toolbar__row .dropdown {
-  width: 100%;
-  max-width: none;
-}
-
-.wikiflow-query-toolbar__hint {
-  font-size: var(--font-ui-smaller);
+.wikiflow-query-view .wq-no-wiki {
+  margin: auto;
+  padding: 24px;
   color: var(--text-muted);
-  line-height: 1.4;
-  padding: 2px 0 4px;
+  font-size: var(--font-ui-small);
+  text-align: center;
 }
 
-.wikiflow-query-prompts {
+/* ===== SCROLL / PAGE ===== */
+.wikiflow-query-view .wq-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.wikiflow-query-view .wq-page {
+  width: 100%;
+  max-width: 880px;
+  padding: 18px 20px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ===== CARD ===== */
+.wikiflow-query-view .wq-card {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--wq-radius);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+/* ===== CONFIG CARD ===== */
+.wikiflow-query-view .wq-config {
+  padding: 16px 18px;
+}
+
+.wikiflow-query-view .wq-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: flex-end;
+}
+
+.wikiflow-query-view .wq-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  flex-shrink: 0;
+  min-width: 150px;
 }
 
+.wikiflow-query-view .wq-field--mode {
+  min-width: 168px;
+}
+
+.wikiflow-query-view .wq-field--grow {
+  flex: 1;
+  min-width: 230px;
+}
+
+.wikiflow-query-view .wq-field__label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.wikiflow-query-view .wq-field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--wq-field-h);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--wq-radius-sm);
+  background: var(--background-primary);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.wikiflow-query-view .wq-field__control:hover {
+  border-color: var(--background-modifier-border-hover);
+}
+
+.wikiflow-query-view .wq-field--mode .wq-field__control {
+  background: var(--wq-accent-soft);
+  border-color: var(--wq-accent-border);
+}
+
+.wikiflow-query-view .wq-field__icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.wikiflow-query-view .wq-field--mode .wq-field__icon {
+  color: var(--wq-accent);
+}
+
+.wikiflow-query-view .wq-field__icon .svg-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.wikiflow-query-view .wq-field__select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-normal);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 30px 0 33px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  box-shadow: none;
+}
+
+.wikiflow-query-view .wq-field--mode .wq-field__select {
+  color: var(--wq-accent);
+}
+
+.wikiflow-query-view .wq-field__select--mono {
+  font-family: var(--font-monospace);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.wikiflow-query-view .wq-field__select:disabled {
+  color: var(--text-faint);
+  cursor: default;
+}
+
+/* custom chevron */
+.wikiflow-query-view .wq-field__control::after {
+  content: "";
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translateY(-65%) rotate(45deg);
+  border-right: 1.6px solid var(--text-faint);
+  border-bottom: 1.6px solid var(--text-faint);
+  pointer-events: none;
+}
+
+.wikiflow-query-view .wq-config__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.wikiflow-query-view .wq-config__hint-icon {
+  display: inline-flex;
+  color: var(--text-faint);
+  flex: none;
+  margin-top: 1px;
+}
+
+.wikiflow-query-view .wq-config__hint-icon .svg-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.wikiflow-query-view .wq-config__hint-text {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ===== PROMPTS ===== */
+.wikiflow-query-view .wq-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ===== INPUT CARD ===== */
+.wikiflow-query-view .wq-input {
+  padding: 14px 16px;
+}
+
+.wikiflow-query-view .wq-textarea {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--wq-radius-sm);
+  padding: 12px 13px;
+  font-family: var(--font-text);
+  font-size: var(--font-text-size);
+  line-height: 1.6;
+  color: var(--text-normal);
+  background: var(--background-primary);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wikiflow-query-view .wq-textarea:focus {
+  outline: none;
+  border-color: var(--wq-accent);
+  box-shadow: 0 0 0 3px var(--wq-accent-soft);
+}
+
+.wikiflow-query-view .wq-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.wikiflow-query-view .wq-bar__spacer {
+  flex: 1;
+}
+
+.wikiflow-query-view .wq-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: var(--wq-field-h);
+  padding: 0 15px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--wq-radius-sm);
+  background: var(--background-primary);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.wikiflow-query-view .wq-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.wikiflow-query-view .wq-btn--primary {
+  padding: 0 18px;
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--wq-accent-2), var(--wq-accent));
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.32);
+}
+
+.wikiflow-query-view .wq-btn--primary:hover {
+  filter: brightness(1.06);
+  color: #fff;
+}
+
+.wikiflow-query-view .wq-btn__icon {
+  display: inline-flex;
+}
+
+.wikiflow-query-view .wq-btn__icon .svg-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.wikiflow-query-view .wq-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--background-modifier-hover);
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.wikiflow-query-view .wq-timer__icon {
+  display: inline-flex;
+}
+
+.wikiflow-query-view .wq-timer__icon .svg-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.wikiflow-query-view .wq-timer.is-running {
+  background: var(--wq-accent-soft);
+  color: var(--wq-accent);
+  animation: wikiflow-query-elapsed-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes wikiflow-query-elapsed-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.wikiflow-query-view .wq-kbd-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-faint);
+}
+
+.wikiflow-query-view .wq-kbd {
+  font-family: var(--font-interface);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--background-modifier-hover);
+  border: 1px solid var(--background-modifier-border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+
+.wikiflow-query-view .wq-status:not(:empty) {
+  margin-top: 11px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ===== EMPTY STATE ===== */
+.wikiflow-query-view .wq-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 11px;
+  padding: 36px 24px;
+  border: 1px dashed var(--background-modifier-border);
+  border-radius: var(--wq-radius);
+  background: var(--background-primary-alt, var(--background-primary));
+}
+
+.wikiflow-query-view .wq-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--wq-accent-soft);
+  color: var(--wq-accent);
+}
+
+.wikiflow-query-view .wq-empty__icon .svg-icon {
+  width: 23px;
+  height: 23px;
+}
+
+.wikiflow-query-view .wq-empty__title {
+  font-size: var(--font-ui-medium);
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.wikiflow-query-view .wq-empty__hint {
+  max-width: 280px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ===== ANSWER CARD ===== */
+.wikiflow-query-view .wq-answer {
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.05);
+}
+
+.wikiflow-query-view .wq-answer__header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+}
+
+.wikiflow-query-view .wq-answer__badge {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--wq-accent-soft);
+  color: var(--wq-accent);
+}
+
+.wikiflow-query-view .wq-answer__badge .svg-icon {
+  width: 13px;
+  height: 13px;
+}
+
+.wikiflow-query-view .wq-answer__title {
+  font-size: var(--font-ui-small);
+  font-weight: 700;
+  color: var(--text-normal);
+}
+
+.wikiflow-query-view .wq-answer__note {
+  font-size: var(--font-ui-smaller);
+  font-weight: 500;
+  color: var(--text-faint);
+}
+
+.wikiflow-query-view .wq-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary);
+  color: var(--text-muted);
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.wikiflow-query-view .wq-icon-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.wikiflow-query-view .wq-icon-btn .svg-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.wikiflow-query-view .wq-answer__body {
+  padding: 14px 22px 22px;
+}
+
+.wikiflow-query-view .wq-answer__content {
+  font-size: var(--font-text-size);
+  line-height: 1.7;
+  color: var(--text-normal);
+}
+
+.wikiflow-query-view .wq-answer__content > :first-child {
+  margin-top: 0;
+}
+
+.wikiflow-query-view .wq-answer__content > :last-child {
+  margin-bottom: 0;
+}
+
+.wikiflow-query-view .wq-citations {
+  margin-top: 16px;
+  padding: 11px 13px;
+  border: 1px dashed var(--background-modifier-border);
+  border-radius: var(--wq-radius-sm);
+}
+
+.wikiflow-query-view .wq-citations strong {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.wikiflow-query-view .wq-citations ul {
+  margin: 6px 0 0;
+  padding-left: 1.2em;
+}
+
+.wikiflow-query-view .wq-citations a {
+  text-decoration: none;
+}
+
+.wikiflow-query-view .wq-citations a:hover {
+  text-decoration: underline;
+}
+
+.wikiflow-query-view .wq-run-host {
+  margin-top: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 10px;
+}
+
+/* ===== STATUS PILL ===== */
+.wikiflow-query-view .wq-status-pill {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  background: var(--background-primary);
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.1);
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+}
+
+.wikiflow-query-view .wq-status-pill__logo {
+  display: inline-flex;
+  color: var(--wq-accent);
+}
+
+.wikiflow-query-view .wq-status-pill__logo .svg-icon {
+  width: 15px;
+  height: 15px;
+}
+
+.wikiflow-query-view .wq-status-pill__brand {
+  color: var(--text-normal);
+}
+
+.wikiflow-query-view .wq-status-pill__sep {
+  color: var(--text-faint);
+}
+
+.wikiflow-query-view .wq-status-pill__muted {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.wikiflow-query-view .wq-status-pill__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wikiflow-query-view .wq-status-pill__state.is-ok {
+  color: var(--text-success);
+}
+
+.wikiflow-query-view .wq-status-pill__state.is-off {
+  color: var(--text-muted);
+}
+
+.wikiflow-query-view .wq-status-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ===== PROMPT SECTION (shared component) ===== */
 .wikiflow-query-prompt {
   border: 1px solid var(--background-modifier-border);
   border-radius: 8px;
@@ -159,99 +677,7 @@
   display: none;
 }
 
-.wikiflow-query-view .wikiflow-query-question {
-  width: 100%;
-  min-height: 88px;
-  resize: vertical;
-  font-family: var(--font-text);
-  font-size: var(--font-text-size);
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--background-modifier-border);
-  background: var(--background-primary);
-  color: var(--text-normal);
-}
-
-.wikiflow-query-view .wikiflow-query-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.wikiflow-query-elapsed {
-  margin-left: auto;
-  font-size: var(--font-ui-smaller);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.wikiflow-query-elapsed.is-running {
-  color: var(--interactive-accent);
-  animation: wikiflow-query-elapsed-pulse 1.2s ease-in-out infinite;
-}
-
-@keyframes wikiflow-query-elapsed-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.55;
-  }
-}
-
-.wikiflow-query-view .wikiflow-query-status {
-  font-size: var(--font-ui-smaller);
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.wikiflow-query-view .wikiflow-query-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.wikiflow-query-view .wikiflow-query-answer {
-  padding: 12px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 8px;
-  background: var(--background-secondary);
-}
-
-.wikiflow-query-view .wikiflow-query-citations {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px dashed var(--background-modifier-border);
-}
-
-.wikiflow-query-view .wikiflow-query-citations ul {
-  margin: 6px 0 0;
-  padding-left: 1.2em;
-}
-
-.wikiflow-query-view .wikiflow-query-citations a {
-  text-decoration: none;
-}
-
-.wikiflow-query-view .wikiflow-query-citations a:hover {
-  text-decoration: underline;
-}
-
-.wikiflow-query-view .wikiflow-query-run-host {
-  flex-shrink: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid var(--background-modifier-border);
-  padding-top: 6px;
-}
-
+/* ===== WORKFLOW RUN PANEL (shared component) ===== */
 .wikiflow-query-run-panel {
   display: flex;
   flex-direction: column;

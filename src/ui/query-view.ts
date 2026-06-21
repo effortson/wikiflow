@@ -4,8 +4,9 @@ import {
   Component,
   ItemView,
   MarkdownRenderer,
-  Setting,
+  Notice,
   WorkspaceLeaf,
+  setIcon,
 } from "obsidian";
 import { createTranslator } from "../i18n";
 import type { WikiFlowPlugin } from "../main";
@@ -47,7 +48,11 @@ export class QueryView extends ItemView {
   private questionInput: HTMLTextAreaElement | null = null;
   private statusEl: HTMLElement | null = null;
   private answerEl: HTMLElement | null = null;
+  private answerCardEl: HTMLElement | null = null;
+  private emptyStateEl: HTMLElement | null = null;
   private citationsEl: HTMLElement | null = null;
+  private lastAnswerText = "";
+  private elapsedTextEl: HTMLElement | null = null;
   private runPanelHost: HTMLElement | null = null;
   private runPanel: QueryWorkflowRunPanel | null = null;
   private runPanelCollapsed = true;
@@ -108,8 +113,11 @@ export class QueryView extends ItemView {
     this.questionInput = null;
     this.statusEl = null;
     this.answerEl = null;
+    this.answerCardEl = null;
+    this.emptyStateEl = null;
     this.citationsEl = null;
     this.elapsedEl = null;
+    this.elapsedTextEl = null;
     this.systemPromptSection = null;
     this.userPromptSection = null;
     this.runPanelHost = null;
@@ -140,7 +148,7 @@ export class QueryView extends ItemView {
 
     const wikis = this.plugin.getWikiInstances();
     if (!wikis.length) {
-      container.createEl("p", { text: qv.noWiki });
+      container.createDiv({ cls: "wq-no-wiki", text: qv.noWiki });
       return;
     }
 
@@ -148,91 +156,93 @@ export class QueryView extends ItemView {
       this.wikiId = wikis[0].wikiId;
     }
 
-    const toolbar = container.createDiv({ cls: "wikiflow-query-toolbar" });
-    const row = toolbar.createDiv({ cls: "wikiflow-query-toolbar__row" });
+    const isWorkflow = this.queryMode === "workflow";
 
-    new Setting(row)
-      .setName(qv.mode)
-      .addDropdown((dropdown) => {
-        dropdown.addOption("wiki", qv.modeWiki);
-        dropdown.addOption("workflow", qv.modeWorkflow);
-        dropdown.setValue(this.queryMode);
-        dropdown.onChange((value) => {
-          this.queryMode = value as QueryMode;
-          this.render();
-        });
-      });
+    const scroll = container.createDiv({ cls: "wq-scroll" });
+    const page = scroll.createDiv({ cls: "wq-page" });
 
-    new Setting(row)
-      .setName(qv.wiki)
-      .addDropdown((dropdown) => {
-        for (const wiki of wikis) {
-          dropdown.addOption(wiki.wikiId, wiki.wikiId);
-        }
-        dropdown.setValue(this.wikiId!);
-        dropdown.onChange((value) => {
-          this.wikiId = value;
-        });
-      });
+    // ===== CONFIG CARD =====
+    const config = page.createEl("section", { cls: "wq-card wq-config" });
+    const fields = config.createDiv({ cls: "wq-fields" });
+
+    const modeSelect = this.buildField(fields, {
+      label: qv.mode,
+      icon: "chevrons-up-down",
+      mod: "mode",
+    });
+    modeSelect.createEl("option", { value: "wiki", text: qv.modeWiki });
+    modeSelect.createEl("option", { value: "workflow", text: qv.modeWorkflow });
+    modeSelect.value = this.queryMode;
+    modeSelect.addEventListener("change", () => {
+      this.queryMode = modeSelect.value as QueryMode;
+      this.render();
+    });
+
+    const wikiSelect = this.buildField(fields, {
+      label: qv.wiki,
+      icon: "book-text",
+    });
+    for (const wiki of wikis) {
+      wikiSelect.createEl("option", { value: wiki.wikiId, text: wiki.wikiId });
+    }
+    wikiSelect.value = this.wikiId!;
+    wikiSelect.addEventListener("change", () => {
+      this.wikiId = wikiSelect.value;
+    });
 
     const workflowFiles = this.listWorkflowFiles();
-    const workflowSetting = new Setting(row).setName(qv.workflow);
-
-    if (this.queryMode === "workflow") {
-      if (!workflowFiles.length) {
-        workflowSetting.setDesc(qv.noWorkflow);
-      } else {
-        workflowSetting.addDropdown((dropdown) => {
-          for (const path of workflowFiles) {
-            dropdown.addOption(path, path);
-          }
-          if (!this.workflowPath || !workflowFiles.includes(this.workflowPath)) {
-            this.workflowPath = workflowFiles[0];
-          }
-          dropdown.setValue(this.workflowPath!);
-          dropdown.onChange((value) => {
-            this.workflowPath = value;
-          });
-        });
+    const wfSelect = this.buildField(fields, {
+      label: qv.workflow,
+      icon: "workflow",
+      mod: "grow",
+      mono: true,
+    });
+    if (isWorkflow && workflowFiles.length) {
+      for (const path of workflowFiles) {
+        wfSelect.createEl("option", { value: path, text: path });
       }
-      toolbar.createDiv({
-        cls: "wikiflow-query-toolbar__hint",
-        text: `${qv.wikiDescWorkflow} · ${qv.workflowDesc}`,
+      if (!this.workflowPath || !workflowFiles.includes(this.workflowPath)) {
+        this.workflowPath = workflowFiles[0];
+      }
+      wfSelect.value = this.workflowPath!;
+      wfSelect.addEventListener("change", () => {
+        this.workflowPath = wfSelect.value;
       });
     } else {
-      workflowSetting.addDropdown((dropdown) => {
-        dropdown.addOption("", "—");
-        dropdown.setValue("");
-        dropdown.setDisabled(true);
+      wfSelect.createEl("option", {
+        value: "",
+        text: isWorkflow ? qv.noWorkflow : "—",
       });
-      toolbar.createDiv({
-        cls: "wikiflow-query-toolbar__hint",
-        text: qv.wikiDesc,
-      });
+      wfSelect.disabled = true;
+      if (isWorkflow) this.workflowPath = null;
     }
 
+    const hint = config.createDiv({ cls: "wq-config__hint" });
+    setIcon(hint.createSpan({ cls: "wq-config__hint-icon" }), "info");
+    hint.createSpan({
+      cls: "wq-config__hint-text",
+      text: isWorkflow
+        ? `${qv.wikiDescWorkflow} · ${qv.workflowDesc}`
+        : qv.wikiDesc,
+    });
+
+    // ===== PROMPTS (optional) =====
     const promptsHost = this.plugin.settings.showQueryPrompts
-      ? container.createDiv({
-          cls: "wikiflow-query-prompts",
-        })
+      ? page.createDiv({ cls: "wq-prompts" })
       : null;
     if (promptsHost) {
-    const commitPrompt = async (
-      key: "querySystemPrompt" | "queryUserPrompt",
-      value: string,
-    ) => {
-      this.plugin.settings[key] = value;
-      await this.plugin.saveSettings();
-    };
+      const commitPrompt = async (
+        key: "querySystemPrompt" | "queryUserPrompt",
+        value: string,
+      ) => {
+        this.plugin.settings[key] = value;
+        await this.plugin.saveSettings();
+      };
 
-    this.systemPromptSection = new QueryPromptSection(
-      promptsHost.createDiv(),
-      {
+      this.systemPromptSection = new QueryPromptSection(promptsHost.createDiv(), {
         title: qv.systemPrompt,
         hint: qv.promptVarsHint,
-        value: effectiveQuerySystemPrompt(
-          this.plugin.settings.querySystemPrompt,
-        ),
+        value: effectiveQuerySystemPrompt(this.plugin.settings.querySystemPrompt),
         defaultValue: DEFAULT_QUERY_SYSTEM_PROMPT,
         resetLabel: qv.resetPrompt,
         rows: 5,
@@ -241,12 +251,9 @@ export class QueryView extends ItemView {
           this.systemPromptCollapsed = collapsed;
         },
         onValueCommit: (value) => void commitPrompt("querySystemPrompt", value),
-      },
-    );
+      });
 
-    this.userPromptSection = new QueryPromptSection(
-      promptsHost.createDiv(),
-      {
+      this.userPromptSection = new QueryPromptSection(promptsHost.createDiv(), {
         title: qv.userPrompt,
         hint: qv.promptVarsHint,
         value: effectiveQueryUserPrompt(this.plugin.settings.queryUserPrompt),
@@ -258,20 +265,20 @@ export class QueryView extends ItemView {
           this.userPromptCollapsed = collapsed;
         },
         onValueCommit: (value) => void commitPrompt("queryUserPrompt", value),
-      },
-    );
+      });
     } else {
       this.systemPromptSection = null;
       this.userPromptSection = null;
     }
 
-    this.questionInput = container.createEl("textarea", {
-      cls: "wikiflow-query-question",
+    // ===== INPUT CARD =====
+    const inputCard = page.createEl("section", { cls: "wq-card wq-input" });
+    this.questionInput = inputCard.createEl("textarea", {
+      cls: "wq-textarea",
       attr: {
-        placeholder:
-          this.queryMode === "workflow"
-            ? qv.questionPlaceholderWorkflow
-            : qv.questionPlaceholder,
+        placeholder: isWorkflow
+          ? qv.questionPlaceholderWorkflow
+          : qv.questionPlaceholder,
       },
     });
     this.questionInput.addEventListener("keydown", (event) => {
@@ -281,55 +288,157 @@ export class QueryView extends ItemView {
       }
     });
 
-    const actions = container.createDiv({ cls: "wikiflow-query-actions" });
-    const askBtn = actions.createEl("button", {
-      cls: "mod-cta",
-      text: qv.ask,
-    });
+    const bar = inputCard.createDiv({ cls: "wq-bar" });
+    const askBtn = bar.createEl("button", { cls: "wq-btn wq-btn--primary" });
+    setIcon(askBtn.createSpan({ cls: "wq-btn__icon" }), "send");
+    askBtn.createSpan({ text: qv.ask });
     askBtn.addEventListener("click", () => void this.runQuery());
 
-    const clearBtn = actions.createEl("button", { text: qv.clear });
+    const clearBtn = bar.createEl("button", { cls: "wq-btn" });
+    setIcon(clearBtn.createSpan({ cls: "wq-btn__icon" }), "trash-2");
+    clearBtn.createSpan({ text: qv.clear });
     clearBtn.addEventListener("click", () => this.clearAnswer());
 
-    this.elapsedEl = actions.createDiv({ cls: "wikiflow-query-elapsed" });
+    bar.createDiv({ cls: "wq-bar__spacer" });
+
+    this.elapsedEl = bar.createDiv({ cls: "wq-timer" });
+    setIcon(this.elapsedEl.createSpan({ cls: "wq-timer__icon" }), "clock");
+    this.elapsedTextEl = this.elapsedEl.createSpan({ cls: "wq-timer__text" });
     this.elapsedEl.hide();
 
-    this.statusEl = container.createDiv({ cls: "wikiflow-query-status" });
-    this.statusEl.setText(qv.hint);
+    const kbd = bar.createDiv({ cls: "wq-kbd-hint" });
+    kbd.createEl("kbd", { cls: "wq-kbd", text: "⌘⏎" });
+    kbd.createSpan({ text: qv.submit });
 
-    const body = container.createDiv({ cls: "wikiflow-query-body" });
-    this.answerEl = body.createDiv({ cls: "wikiflow-query-answer" });
-    this.answerEl.setText(qv.emptyAnswer);
-    this.citationsEl = body.createDiv({ cls: "wikiflow-query-citations" });
+    this.statusEl = inputCard.createDiv({ cls: "wq-status" });
+
+    // ===== EMPTY STATE =====
+    this.emptyStateEl = page.createEl("section", { cls: "wq-empty" });
+    setIcon(this.emptyStateEl.createDiv({ cls: "wq-empty__icon" }), "message-square");
+    this.emptyStateEl.createDiv({
+      cls: "wq-empty__title",
+      text: qv.emptyAnswerTitle,
+    });
+    this.emptyStateEl.createDiv({
+      cls: "wq-empty__hint",
+      text: qv.emptyAnswerHint,
+    });
+
+    // ===== ANSWER CARD =====
+    this.answerCardEl = page.createEl("section", { cls: "wq-card wq-answer" });
+    const answerHeader = this.answerCardEl.createDiv({ cls: "wq-answer__header" });
+    setIcon(answerHeader.createDiv({ cls: "wq-answer__badge" }), "sparkles");
+    answerHeader.createSpan({ cls: "wq-answer__title", text: qv.answerTitle });
+    answerHeader.createSpan({ cls: "wq-answer__note", text: `· ${qv.answerNote}` });
+    answerHeader.createDiv({ cls: "wq-bar__spacer" });
+    const copyBtn = answerHeader.createEl("button", {
+      cls: "wq-icon-btn",
+      attr: { "aria-label": qv.copyAnswer, title: qv.copyAnswer },
+    });
+    setIcon(copyBtn, "copy");
+    copyBtn.addEventListener("click", () => void this.copyAnswer());
+
+    const answerBody = this.answerCardEl.createDiv({ cls: "wq-answer__body" });
+    this.answerEl = answerBody.createDiv({
+      cls: "wq-answer__content markdown-rendered",
+    });
+    this.citationsEl = answerBody.createDiv({ cls: "wq-citations" });
     this.citationsEl.hide();
 
-    if (this.queryMode === "workflow") {
-      this.runPanelHost = container.createDiv({
-        cls: "wikiflow-query-run-host",
-      });
+    if (isWorkflow) {
+      this.runPanelHost = answerBody.createDiv({ cls: "wq-run-host" });
       this.runPanel = this.createRunPanel(this.runPanelHost, qv.workflowRunTitle);
       this.runPanelHost.hide();
     } else {
       this.runPanelHost = null;
       this.runPanel = null;
     }
+
+    this.answerCardEl.hide();
+
+    // ===== STATUS PILL =====
+    this.renderStatusPill(container, tr);
+  }
+
+  private buildField(
+    parent: HTMLElement,
+    opts: { label: string; icon: string; mod?: string; mono?: boolean },
+  ): HTMLSelectElement {
+    const field = parent.createDiv({
+      cls: opts.mod ? `wq-field wq-field--${opts.mod}` : "wq-field",
+    });
+    field.createEl("label", { cls: "wq-field__label", text: opts.label });
+    const control = field.createDiv({ cls: "wq-field__control" });
+    setIcon(control.createSpan({ cls: "wq-field__icon" }), opts.icon);
+    return control.createEl("select", {
+      cls: opts.mono ? "wq-field__select wq-field__select--mono" : "wq-field__select",
+    });
+  }
+
+  private renderStatusPill(
+    container: HTMLElement,
+    tr: ReturnType<typeof createTranslator>,
+  ): void {
+    const pill = container.createDiv({ cls: "wq-status-pill" });
+    setIcon(pill.createSpan({ cls: "wq-status-pill__logo" }), "git-branch");
+    pill.createSpan({ cls: "wq-status-pill__brand", text: "WikiFlow" });
+
+    pill.createSpan({ cls: "wq-status-pill__sep", text: "·" });
+    const llmReady = this.plugin.settings.llmReady;
+    const llm = pill.createSpan({
+      cls: llmReady
+        ? "wq-status-pill__state is-ok"
+        : "wq-status-pill__state is-off",
+    });
+    llm.createSpan({ cls: "wq-status-pill__dot" });
+    llm.createSpan({
+      text: llmReady ? tr.statusBar("llmReady") : tr.statusBar("llmNotConfigured"),
+    });
+
+    pill.createSpan({ cls: "wq-status-pill__sep", text: "·" });
+    const provider = this.plugin.settings.backup.provider;
+    pill.createSpan({
+      cls: "wq-status-pill__muted",
+      text:
+        provider === "none"
+          ? tr.statusBar("backupOff")
+          : tr.statusBar("backupProvider", { provider }),
+    });
+  }
+
+  private showAnswerCard(): void {
+    this.emptyStateEl?.hide();
+    this.answerCardEl?.show();
+  }
+
+  private showEmptyState(): void {
+    this.answerCardEl?.hide();
+    this.emptyStateEl?.show();
+  }
+
+  private async copyAnswer(): Promise<void> {
+    const text = this.lastAnswerText.trim();
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+    new Notice(createTranslator().queryView("copied"));
   }
 
   private clearAnswer(): void {
     const tr = createTranslator();
     const qv = tr.queryViewMessages();
     if (this.questionInput) this.questionInput.value = "";
-    if (this.statusEl) this.statusEl.setText(qv.hint);
+    if (this.statusEl) this.statusEl.setText("");
+    this.lastAnswerText = "";
     if (this.answerEl) {
       this.markdownComponent.unload();
       this.markdownComponent = new Component();
       this.answerEl.empty();
-      this.answerEl.setText(qv.emptyAnswer);
     }
     if (this.citationsEl) {
       this.citationsEl.empty();
       this.citationsEl.hide();
     }
+    this.showEmptyState();
     this.clearElapsedDisplay();
     if (this.runPanelHost) {
       this.runPanelHost.empty();
@@ -384,19 +493,17 @@ export class QueryView extends ItemView {
   private clearElapsedDisplay(): void {
     this.stopElapsedTimer(false);
     this.runStartedAt = 0;
-    if (this.elapsedEl) {
-      this.elapsedEl.hide();
-      this.elapsedEl.empty();
-    }
+    if (this.elapsedEl) this.elapsedEl.hide();
+    if (this.elapsedTextEl) this.elapsedTextEl.setText("");
   }
 
   private updateElapsedDisplay(final: boolean): void {
-    if (!this.elapsedEl || !this.runStartedAt) return;
+    if (!this.runStartedAt) return;
+    const target = this.elapsedTextEl ?? this.elapsedEl;
+    if (!target) return;
     const elapsed = (Date.now() - this.runStartedAt) / 1000;
     const seconds = final ? formatElapsedSeconds(elapsed) : String(Math.floor(elapsed));
-    this.elapsedEl.setText(
-      createTranslator().queryView("elapsedSeconds", { seconds }),
-    );
+    target.setText(createTranslator().queryView("elapsedSeconds", { seconds }));
   }
 
   private async runQuery(): Promise<void> {
@@ -420,6 +527,7 @@ export class QueryView extends ItemView {
 
     this.running = true;
     this.startElapsedTimer();
+    this.showAnswerCard();
     if (this.statusEl) this.statusEl.setText(qv.thinking);
     if (this.answerEl) {
       this.markdownComponent.unload();
@@ -510,6 +618,7 @@ export class QueryView extends ItemView {
 
     this.running = true;
     this.startElapsedTimer();
+    this.showAnswerCard();
     this.clearWorkflowSubscriptions();
 
     if (this.statusEl) this.statusEl.setText(qv.workflowRunning);
@@ -587,6 +696,7 @@ export class QueryView extends ItemView {
 
   private async renderAnswer(markdown: string, final = false): Promise<void> {
     if (!this.answerEl) return;
+    this.lastAnswerText = markdown;
     this.answerEl.empty();
     const safe = sanitizeLlmMarkdown(markdown);
     if (!final) {

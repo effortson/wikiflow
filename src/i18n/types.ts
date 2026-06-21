@@ -172,6 +172,13 @@ export interface QueryViewMessages {
   noWiki: string;
   citations: string;
   emptyAnswer: string;
+  emptyAnswerTitle: string;
+  emptyAnswerHint: string;
+  answerTitle: string;
+  answerNote: string;
+  copyAnswer: string;
+  copied: string;
+  submit: string;
   elapsedSeconds: string;
   systemPrompt: string;
   userPrompt: string;
