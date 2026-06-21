@@ -65,6 +65,8 @@ ln -s /path/to/wikiflow "/path/to/VAULT/.obsidian/plugins/wikiflow"
 
 功能区 **搜索图标** 或命令 `Open wiki Q&A panel` 打开，界面为卡片式：
 
+![Wiki 问答界面](docs/images/wiki-qa.png)
+
 - **配置卡**：选择「问答模式」、Wiki 实例，以及（Workflow 模式下）`.workflow.json`
 - **问题卡**：输入问题，`Cmd/Ctrl+Enter` 或 **提问** 提交，**清空** 重置；运行时显示计时
 - **回答卡**：以 Markdown 渲染（支持 wikilink 跳转），可一键复制，内容超出时在卡片内滚动
@@ -89,6 +91,8 @@ Workflow 问答要求工作流：
 - `{{wikiId}}` `{{question}}` `{{context}}` `{{languageInstruction}}`
 
 ## Workflow 编辑器
+
+![Workflow 编辑器](docs/images/workflow-editor.png)
 
 - 功能区 **分支图标** 或命令 `WikiFlow: Open workflow canvas`
 - 拖拽节点、连线、Inspector 配置
