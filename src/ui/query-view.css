@@ -8,6 +8,11 @@
   --wq-field-h: 38px;
   position: relative;
   height: 100%;
+  /* As a flex item of Obsidian's leaf, min-height:0 lets this bound the
+     inner scroller instead of growing past the pane (so .wq-scroll can
+     actually scroll long answers). */
+  min-height: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
