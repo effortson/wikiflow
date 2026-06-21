@@ -187,7 +187,7 @@ function WorkflowEditorInner({ deps, activePath }: WorkflowEditorProps) {
         setValidation(null);
         setRunReport(null);
         clearRunStates();
-        setStatus(`Loaded ${path}`);
+        setStatus("");
       } catch (err) {
         if (generation !== loadGenerationRef.current) return;
         setStatus(err instanceof Error ? err.message : String(err));
